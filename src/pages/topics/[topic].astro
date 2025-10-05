@@ -1,0 +1,110 @@
+---
+import { Resource } from "sst";
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import ResponsiveImage from "../../components/ResponsiveImage.astro";
+
+interface Article {
+  articleId: string;
+  createdAt: string;
+  imageUrl: string;
+  title?: string;
+  headline: string;
+  authorName: string;
+  content: {
+    hook: string;
+    whyItMatters?: string;
+  };
+  topic?: string;
+}
+
+export async function getStaticPaths() {
+  const apiUrl = Resource.Api.url;
+  const response = await fetch(`${apiUrl}/articles`);
+  const articles: Article[] = await response.json();
+
+  // Get unique topics, defaulting to "News" if missing
+  const topics = [...new Set(articles.map(article => article.topic || "News").filter(Boolean) as string[])];
+
+  return topics.map((topic) => ({
+    params: { topic: topic.toLowerCase() }, // Ensure topic is lowercase for URL
+    props: { topic },
+  }));
+}
+
+const { topic } = Astro.params;
+const apiUrl = Resource.Api.url;
+let articlesByTopic: Article[] = [];
+
+try {
+  const response = await fetch(`${apiUrl}/articles`);
+  if (response.ok) {
+    const allArticles: Article[] = (await response.json()).map((article: Article) => ({
+      ...article,
+      topic: article.topic || "News" // Default to "News" if topic is missing
+    }));
+
+    articlesByTopic = allArticles.filter(article => {
+      const articleTopicLower = article.topic?.toLowerCase();
+      const requestedTopicLower = topic?.toLowerCase();
+
+      if (requestedTopicLower === "news") {
+        return articleTopicLower === "news";
+      } else {
+        return articleTopicLower === requestedTopicLower;
+      }
+    });
+    articlesByTopic.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  } else {
+    console.error(`Failed to fetch articles: ${response.status} ${response.statusText}`);
+  }
+} catch (error) {
+  console.error("Error fetching articles:", error);
+}
+
+const pageTitle = `Fauxios: ${topic ? topic.charAt(0).toUpperCase() + topic.slice(1) : 'Unknown'} Articles`;
+const pageDescription = `Explore articles on Fauxios related to ${topic}.`;
+---
+
+<ArticleLayout title={pageTitle} description={pageDescription} ogImageUrl="/images/fauxios-logo.svg">
+  <main class="container mx-auto px-4 py-8 max-w-screen-xl">
+    <h1 class="text-4xl font-extrabold leading-tight mb-8">
+      {topic ? topic.charAt(0).toUpperCase() + topic.slice(1) : 'All'} Articles
+    </h1>
+
+    {articlesByTopic.length === 0 ? (
+      <div class="text-center py-12 bg-white rounded-lg shadow-md">
+        <p class="text-gray-500">No articles found for this topic.</p>
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {articlesByTopic.map((article) => (
+          <article class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+            <div class="p-4">
+              <div class="flex items-center text-sm text-gray-500 mb-2">
+                <div class="mr-2">{new Date(article.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} {article.topic && `- ${article.topic}`}</div>
+              </div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2 leading-tight">
+                <a href={`/articles/${article.articleId}`} class="hover:text-indigo-600 transition duration-300 ease-in-out">{article.title || article.headline}</a>
+              </h3>
+              <div class="flex items-center text-sm text-gray-600">
+                <img src="/images/placeholder-cat-journalist.svg" alt="Author" class="w-8 h-8 rounded-full mr-2 flex-shrink-0 object-cover" />
+                <span>By {article.authorName}</span>
+              </div>
+            </div>
+            <a href={`/articles/${article.articleId}`} class="block flex-grow relative bg-gray-100">
+              <ResponsiveImage src={article.imageUrl} alt={article.title || article.headline} class="w-full h-auto max-w-full max-h-64 object-cover" />
+              <p class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2 truncate">{article.content.hook}</p>
+            </a>
+            <div class="p-4">
+              <p class="text-base text-gray-700 mb-4">{article.content.hook}</p>
+              {article.content.whyItMatters && (
+                <p class="text-base text-gray-600 mb-4"><strong class="text-gray-800">Why it matters:</strong> {article.content.whyItMatters}</p>
+              )}
+              <a href={`/articles/${article.articleId}`} class="w-full text-center inline-block bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition duration-300 text-sm font-semibold">Read the Full Story</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+  </main>
+</ArticleLayout>

@@ -1,0 +1,64 @@
+---
+interface Props {
+  src: string | undefined | null;
+  alt: string;
+  class?: string;
+  [key: string]: any; // Allow other attributes
+}
+
+const { src, alt, class: className, ...attrs } = Astro.props;
+
+const uniqueId = `responsive-image-${Math.random().toString(36).substring(2, 9)}`;
+---
+
+{src ? (
+  <img
+    id={uniqueId}
+    src={src}
+    alt={alt}
+    class={className}
+    {...attrs}
+  />
+) : (
+  <img
+    src="/images/placeholder-image.svg"
+    alt={alt}
+    class={className + ' object-contain'} // Ensure placeholder is contained
+    {...attrs}
+  />
+)}
+
+<script define:vars={{ uniqueId: uniqueId }}>
+  const img = document.getElementById(uniqueId);
+  const fallbackSrc = '/images/placeholder-image.svg';
+
+  if (img) {
+    const checkImage = () => {
+      if (!img.complete) return; // Image not yet complete
+
+      // Add a small delay to ensure naturalWidth/Height are calculated
+      setTimeout(() => {
+        if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+          img.src = fallbackSrc;
+          img.classList.add('object-fill'); // Use object-fill to ensure it covers the area
+          img.classList.remove('object-cover'); // Remove original object-fit
+        }
+      }, 50); // 50ms delay
+    };
+
+    // Handle network errors
+    img.onerror = () => {
+      img.src = fallbackSrc;
+      img.classList.add('object-fill');
+      img.classList.remove('object-cover');
+    };
+
+    // Handle successful load, then check dimensions
+    img.onload = checkImage;
+
+    // If image is already complete (e.g., from cache), check immediately
+    if (img.complete) {
+      checkImage();
+    }
+  }
+</script>

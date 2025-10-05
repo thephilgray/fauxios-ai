@@ -1,16 +1,189 @@
 ---
+import { Resource } from "sst";
+import ArticleLayout from '../layouts/ArticleLayout.astro';
+import ResponsiveImage from "../components/ResponsiveImage.astro";
+
+interface Article {
+  articleId: string;
+  createdAt: string;
+  imageUrl: string;
+  title?: string;
+  headline: string;
+  authorId: string;
+  authorName: string;
+  content: {
+    hook: string;
+    details: string;
+    whyItMatters?: string;
+  };
+  topic?: string;
+}
+
+const apiUrl = Resource.Api.url;
+let allArticles: Article[] = [];
+try {
+  const response = await fetch(`${apiUrl}/articles`);
+  if (response.ok) {
+    allArticles = (await response.json()).map((article: Article) => ({
+      ...article,
+      topic: article.topic || "News" // Default to "News" if topic is missing
+    }));
+    // Filter out articles with missing essential content
+    allArticles = allArticles.filter(article => 
+      article.imageUrl &&
+      (article.title || article.headline) &&
+      article.content &&
+      article.content.hook &&
+      article.content.details
+    );
+    // Sort articles by createdAt descending to get the latest ones
+    allArticles.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  } else {
+    console.error(`Failed to fetch articles: ${response.status} ${response.statusText}`);
+  }
+} catch (error) {
+  console.error("Error fetching articles:", error);
+}
+
+const featuredArticle = allArticles.length > 0 ? allArticles[0] : null;
+const otherLatestArticles = allArticles.slice(1, 5); // Get next 4 for sidebar/below featured
+const standardFeedArticles = allArticles.slice(5); // Remaining for the standard feed
 
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<ArticleLayout title="Fauxios - Satirical News by Cats" description="The world's news, as caused by cats." ogImageUrl="/favicon.svg">
+  <main class="container mx-auto px-4 pb-8 max-w-screen-xl">
+    <!-- Catch up quick section -->
+    <!-- <section class="mb-8 p-6 bg-blue-50 border-l-4 border-blue-500 rounded-lg shadow-md">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Briefing:</h2>
+      <p class="text-gray-700">Satirical News.</p>
+    </section> -->
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Featured Article -->
+      <section class="md:col-span-1 lg:col-span-2">
+        {featuredArticle ? (
+          <article class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+            <a href={`/articles/${featuredArticle.articleId}`} class="block relative bg-gray-100">
+              <ResponsiveImage src={featuredArticle.imageUrl} alt={featuredArticle.title || featuredArticle.headline} class="w-full h-auto max-w-full max-h-96 object-cover" />
+              <p class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-sm p-3 truncate">{featuredArticle.content.hook}</p>
+            </a>
+            <div class="p-6">
+              <div class="flex items-center text-sm text-gray-500 mb-2">
+                <div class="mr-2">
+                  {new Date(featuredArticle.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  {featuredArticle.topic && (
+                    <>
+                      {` - `}
+                      <a href={`/topics/${featuredArticle.topic.toLowerCase()}`} class="text-blue-600 hover:underline">
+                        {featuredArticle.topic}
+                      </a>
+                    </>
+                  )}
+                </div>
+              </div>
+              <h2 class="text-3xl font-bold text-gray-800 mb-2 leading-tight">
+                <a href={`/articles/${featuredArticle.articleId}`} class="hover:text-indigo-600 transition duration-300 ease-in-out">{featuredArticle.title || featuredArticle.headline}</a>
+              </h2>
+              <div class="flex items-center text-sm text-gray-600 mb-4">
+                <img src="/images/placeholder-author.svg" alt="Author" class="w-8 h-8 rounded-full mr-2 flex-shrink-0 object-cover" />
+                <span>By {featuredArticle.authorName}</span>
+              </div>
+              <p class="text-base text-gray-700 mb-4">{featuredArticle.content.hook}</p>
+              {featuredArticle.content.whyItMatters && (
+                <p class="text-base text-gray-600 mb-4"><strong class="text-gray-800">Why it matters:</strong> {featuredArticle.content.whyItMatters}</p>
+              )}
+              <a href={`/articles/${featuredArticle.articleId}`} class="w-full text-center inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300 text-sm font-semibold">Read the Full Story</a>
+            </div>
+          </article>
+        ) : (
+          <div class="text-center py-12 bg-white rounded-lg shadow-md">
+            <p class="text-gray-500">No featured article found. The FauxiosGenerator will create new articles soon.</p>
+          </div>
+        )}
+      </section>
+
+      <!-- Other Latest Articles (Sidebar on large, below featured on small) -->
+      <section class="md:col-span-1 lg:col-span-1 bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Other Latest Stories</h3>
+        {otherLatestArticles.length === 0 ? (
+          <p class="text-gray-500">No other latest articles.</p>
+        ) : (
+          <div class="space-y-4">
+            {otherLatestArticles.map((article: any) => (
+              <div class="flex items-start space-x-3">
+                <a href={`/articles/${article.articleId}`} class="flex-shrink-0 bg-gray-100">
+                  <ResponsiveImage src={article.imageUrl} alt={article.title || article.headline} class="w-20 h-20 object-cover rounded-md" />
+                </a>
+                <div>
+                  <h4 class="text-base font-semibold leading-tight">
+                    <a href={`/articles/${article.articleId}`} class="hover:text-indigo-600">{article.title || article.headline}</a>
+                  </h4>
+                  <p class="text-xs text-gray-500">{new Date(article.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <!-- Ad Placeholder -->
+        <div class="mt-8 bg-gray-100 p-4 text-center text-gray-500 text-sm rounded-md border border-gray-200">
+          Advertisement
+          <div class="w-full h-32 bg-gray-200 flex items-center justify-center mt-2 text-gray-400">
+            300x250 Ad
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Standard Feed (below main fold) -->
+    <section class="mt-8">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">More Articles</h2>
+      {standardFeedArticles.length === 0 ? (
+        <div class="text-center py-12 bg-white rounded-lg shadow-md">
+          <p class="text-gray-500">No more articles in the feed.</p>
+        </div>
+      ) : (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {standardFeedArticles.map((article: any, index: number) => (
+            <>
+              <article class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+                <div class="p-4">
+                  <div class="flex items-center text-sm text-gray-500 mb-2">
+                    <div class="mr-2">{new Date(article.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} {article.topic && `- `}<a href={`/topics/${article.topic.toLowerCase()}`} class="text-blue-600 hover:underline">{article.topic}</a></div>
+                  </div>
+                  <h3 class="text-xl font-bold text-gray-800 mb-2 leading-tight">
+                    <a href={`/articles/${article.articleId}`} class="hover:text-indigo-600 transition duration-300 ease-in-out">{article.title || article.headline}</a>
+                  </h3>
+                  <div class="flex items-center text-sm text-gray-600">
+                    <img src="/images/placeholder-author.svg" alt="Author" class="w-8 h-8 rounded-full mr-2 flex-shrink-0 object-cover" />
+                    <span>By {article.authorName}</span>
+                  </div>
+                </div>
+                <a href={`/articles/${article.articleId}`} class="block flex-grow relative bg-gray-100">
+                  <ResponsiveImage src={article.imageUrl} alt={article.title || article.headline} class="w-full h-auto max-w-full max-h-64 object-cover" />
+                  <p class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2 truncate">{article.content.hook}</p>
+                </a>
+                <div class="p-4">
+                  <p class="text-base text-gray-700 mb-4">{article.content.hook}</p>
+                  {article.content.whyItMatters && (
+                    <p class="text-base text-gray-600 mb-4"><strong class="text-gray-800">Why it matters:</strong> {article.content.whyItMatters}</p>
+                  )}
+                <a href={`/articles/${article.articleId}`} class="w-full text-center inline-block bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition duration-300 text-sm font-semibold">Read the Full Story</a>
+                </div>
+              </article>
+              {index === 0 && (
+                <div class="bg-gray-100 p-4 text-center text-gray-500 text-sm rounded-md border border-gray-200 flex items-center justify-center md:col-span-2 lg:col-span-1">
+                  Advertisement
+                  <div class="w-full h-48 bg-gray-200 flex items-center justify-center mt-2 text-gray-400">
+                    300x250 Ad
+                  </div>
+                </div>
+              )}
+            </>
+          ))}
+        </div>
+      )}
+    </section>
+
+  </main>
+</ArticleLayout>

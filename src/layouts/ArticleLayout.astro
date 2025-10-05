@@ -1,0 +1,86 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  ogImageUrl: string;
+}
+
+const { title, description, ogImageUrl } = Astro.props;
+import '../styles/global.css';
+import { Resource } from "sst";
+
+interface Article {
+  topic?: string;
+  createdAt: string;
+}
+
+const apiUrl = Resource.Api.url;
+let topics: string[] = [];
+
+try {
+  const response = await fetch(`${apiUrl}/articles`);
+  if (response.ok) {
+    const allArticles: Article[] = await response.json();
+    // Sort articles by createdAt in descending order
+    allArticles.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const recentTopics = [...new Set(allArticles.map(article => article.topic || "News").filter(Boolean) as string[])];
+    topics = recentTopics.slice(0, 4); // Get the first 4 unique topics
+  } else {
+    console.error(`Failed to fetch articles for topics: ${response.status} ${response.statusText}`);
+  }
+} catch (error) {
+  console.error("Error fetching topics:", error);
+}
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:url" content={Astro.url} />
+    <meta property="og:type" content="article" />
+
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <title>{title}</title>
+    
+  </head>
+  <body class="font-sans antialiased text-gray-900 bg-gray-50">
+    <header class="bg-white shadow-sm py-3">
+      <div class="container mx-auto px-4 flex justify-between items-center">
+        <a href="/" class="flex items-center justify-center">
+          <img src="/images/fauxios-logo.svg" alt="Fauxios Logo" class="h-8 w-auto" />
+        </a>
+        <nav class="flex flex-wrap justify-center gap-4">
+          <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+          {topics.map(topicItem => (
+            <a href={`/topics/${topicItem.toLowerCase()}`} class="text-gray-700 hover:text-blue-600 font-medium">
+              {topicItem.charAt(0).toUpperCase() + topicItem.slice(1)}
+            </a>
+          ))}
+        </nav>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-4">
+      <slot />
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+      <div class="container mx-auto px-4 text-center">
+        <p>&copy; {new Date().getFullYear()} Fauxios. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>
