@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 
 .sst/
+
+# large generated files stored on S3
+assets/*

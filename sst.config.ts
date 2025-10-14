@@ -33,48 +33,18 @@ export default $config({
     });
 
 
-    const realProblemsTable = new sst.aws.Dynamo("RealProblems", {
-      fields: {
-        problemId: "string",
-      },
-      primaryIndex: {
-        hashKey: "problemId",
-      },
-    });
+    
 
-    const historicalThemesTable = new sst.aws.Dynamo("HistoricalThemes", {
-      fields: {
-        themeId: "string",
-      },
-      primaryIndex: {
-        hashKey: "themeId",
-      },
-    });
+    
 
-    const problemStatsTable = new sst.aws.Dynamo("ProblemStats", {
-      fields: {
-        problemName: "string",
-        statisticId: "string",
-      },
-      primaryIndex: {
-        hashKey: "problemName",
-        rangeKey: "statisticId",
-      },
-    });
+    
 
     const authorsTable = new sst.aws.Dynamo("Authors", {
       fields: {
         authorId: "string",
-        concept: "string", // The concept this author specializes in
       },
       primaryIndex: {
         hashKey: "authorId",
-      },
-      globalIndexes: {
-        "concept-index": { // GSI to query authors by concept
-          hashKey: "concept",
-          projection: "all",
-        },
       },
     });
 
@@ -82,6 +52,9 @@ export default $config({
       public: true, // Make images publicly accessible,
     });
 
+    const embeddingsBucket = new sst.aws.Bucket("Embeddings", {
+      public: false, // Embeddings don't need to be publicly accessible
+    });
 
     const processedImagesBucket = new sst.aws.Bucket("ProcessedImages", {
       public: true, // Make processed images publicly accessible
@@ -132,30 +105,31 @@ export default $config({
 
     const seedConceptsFunction = new sst.aws.Function("SeedConceptsFunction", {
       handler: "src/functions/seedConcepts.handler",
-      link: [articlesTable, realProblemsTable, historicalThemesTable, problemStatsTable, authorsTable],
+      link: [articlesTable, authorsTable],
+    });
+
+    const fauxiosGeneratorFunction = new sst.aws.Function("FauxiosGenerator", {
+      handler: "src/functions/fauxiosGenerator.handler",
+      link: [
+        articlesTable,
+        authorsTable,
+        geminiApiKey,
+        newsdataApiKey,
+        imagesBucket,
+        embeddingsBucket, // Link the new embeddings bucket
+      ],
+      memory: "1024 MB", // Increase memory for large embeddings file
+      timeout: "60 seconds", // Increase timeout for image generation
+      concurrency: {
+        reserved: 1, // Limit to 1 concurrent invocation
+      },
     });
 
 
     if ($app.stage !== "phillipgray") {
       new sst.aws.Cron("FauxiosGeneratorCron", {
         schedule: "rate(24 hours)",
-        job: {
-          handler: "src/functions/fauxiosGenerator.handler",
-          link: [
-            articlesTable,
-            authorsTable,
-            geminiApiKey,
-            newsdataApiKey,
-            imagesBucket,
-            realProblemsTable,
-            historicalThemesTable,
-            problemStatsTable,
-          ],
-          timeout: "60 seconds", // Increase timeout for image generation
-          concurrency: {
-            reserved: 1, // Limit to 1 concurrent invocation
-          },
-        },
+        job: fauxiosGeneratorFunction.arn, // Link to the ARN of the Function construct
       });
     }    
     

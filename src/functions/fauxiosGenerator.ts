@@ -1,24 +1,105 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, QueryCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { GoogleGenerativeAI, TaskType } from "@google/generative-ai";
 import fetch from "node-fetch";
 import { Resource } from "sst";
 import { Buffer } from 'buffer';
+import * as fs from "fs";
+import * as path from "path";
+import * as zlib from "zlib";
+import { Readable } from "stream"; // Import Readable from 'stream'
+
+interface EmbeddingData {
+  source: string;
+  content: string;
+  embedding: number[];
+}
+
+const EMBEDDINGS_BUCKET_NAME = Resource.Embeddings.name;
+const EMBEDDINGS_FILE_KEY = "embeddings.json.gz"; // The key in the S3 bucket
+const LOCAL_COMPRESSED_EMBEDDINGS_FILE_PATH = `/tmp/${EMBEDDINGS_FILE_KEY}`;
+const LOCAL_DECOMPRESSED_EMBEDDINGS_FILE_PATH = `/tmp/embeddings.json`;
+
+let ALL_EMBEDDINGS: EmbeddingData[] = [];
 
 const ddbClient = new DynamoDBClient({});
 const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 const s3Client = new S3Client({});
 
-// Define the new concepts
-const concepts = ["Real Problem", "Grand Unified Theory", "Historical Narrator"];
+import { TOP_LEVEL_TOPICS } from "../constants";
+
+async function downloadEmbeddingsFromS3() {
+  console.log(`Downloading ${EMBEDDINGS_FILE_KEY} from S3 bucket ${EMBEDDINGS_BUCKET_NAME} to ${LOCAL_COMPRESSED_EMBEDDINGS_FILE_PATH}...`);
+  try {
+    const { Body } = await s3Client.send(new GetObjectCommand({
+      Bucket: EMBEDDINGS_BUCKET_NAME,
+      Key: EMBEDDINGS_FILE_KEY,
+    }));
+
+    if (Body) {
+      const webStream = Body.transformToWebStream();
+      const nodeStream = Readable.fromWeb(webStream as any); // Convert Web Stream to Node.js Stream
+      const outputStream = fs.createWriteStream(LOCAL_COMPRESSED_EMBEDDINGS_FILE_PATH);
+      await new Promise<void>((resolve, reject) => { // Explicitly type the Promise to resolve with void
+        nodeStream.pipe(outputStream)
+          .on('error', (err: Error) => reject(err)) // Wrap reject to pass the error
+          .on('close', () => resolve());    // Wrap resolve to call it with no arguments
+      });
+      console.log("Compressed embeddings file downloaded successfully.");
+
+      // Decompress the file
+      console.log(`Decompressing ${LOCAL_COMPRESSED_EMBEDDINGS_FILE_PATH} to ${LOCAL_DECOMPRESSED_EMBEDDINGS_FILE_PATH}...`);
+      const input = fs.createReadStream(LOCAL_COMPRESSED_EMBEDDINGS_FILE_PATH);
+      const output = fs.createWriteStream(LOCAL_DECOMPRESSED_EMBEDDINGS_FILE_PATH);
+      await new Promise<void>((resolve, reject) => { // Explicitly type the Promise to resolve with void
+        input.pipe(zlib.createGunzip())
+          .pipe(output)
+          .on('error', (err: Error) => reject(err)) // Wrap reject to pass the error
+          .on('close', () => resolve());    // Wrap resolve to call it with no arguments
+      });
+      console.log("Embeddings file decompressed successfully.");
+
+    } else {
+      throw new Error("S3 GetObjectCommand returned empty Body.");
+    }
+  } catch (error) {
+    console.error("Error downloading or decompressing embeddings from S3:", error);
+    throw error;
+  }
+}
+
+// Initialize embeddings once during cold start
+(async () => {
+  try {
+    await downloadEmbeddingsFromS3();
+    ALL_EMBEDDINGS = JSON.parse(fs.readFileSync(LOCAL_DECOMPRESSED_EMBEDDINGS_FILE_PATH, "utf8"));
+    console.log(`Loaded ${ALL_EMBEDDINGS.length} embeddings.`);
+  } catch (error) {
+    console.error("Failed to initialize ALL_EMBEDDINGS:\n", error); // Added newline for better readability
+    // Depending on your error handling strategy, you might want to re-throw or handle gracefully
+    throw error; // Re-throw to indicate a critical initialization failure
+  }
+})();
+
+function cosineSimilarity(vecA: number[], vecB: number[]): number {
+  let dotProduct = 0;
+  let magnitudeA = 0;
+  let magnitudeB = 0;
+  for (let i = 0; i < vecA.length; i++) {
+    dotProduct += vecA[i] * vecB[i];
+    magnitudeA += vecA[i] * vecA[i];
+    magnitudeB += vecB[i] * vecB[i];
+  }
+  magnitudeA = Math.sqrt(magnitudeA);
+  magnitudeB = Math.sqrt(magnitudeB);
+  if (magnitudeA === 0 || magnitudeB === 0) return 0;
+  return dotProduct / (magnitudeA * magnitudeB);
+}
 
 export async function handler() {
   console.log("FauxiosGenerator handler started.");
   try {
-    // Randomly select a concept
-    const selectedConcept = concepts[Math.floor(Math.random() * concepts.length)];
-    console.log("Selected Concept:", selectedConcept);
 
     // Fetch headlines from Newsdata.io
     console.log("Fetching headlines from Newsdata.io...");
@@ -26,7 +107,7 @@ export async function handler() {
     if (!newsdataApiKey) {
       throw new Error("NewsdataApiKey is not available.");
     }
-    const newsdataUrl = `https://newsdata.io/api/1/news?apikey=${newsdataApiKey}&language=en&country=us&prioritydomain=top&qInMeta=politics&domain=axios`;
+    const newsdataUrl = `https://newsdata.io/api/1/news?apikey=${newsdataApiKey}&language=en&country=us&prioritydomain=top&domain=axios`;
     const response = await fetch(newsdataUrl);
     interface NewsdataResponse {
       results: any[];
@@ -36,7 +117,6 @@ export async function handler() {
       throw new Error("No articles found from Newsdata.io.");
     }
     const allArticles: any[] = data.results;
-    const allHeadlines: string[] = allArticles.map((article: any) => article.title);
 
     // Fetch all used headlines from Articles table
     const articlesTableNameForScan = Resource.Articles.name;
@@ -57,213 +137,109 @@ export async function handler() {
     // Shuffle the unused articles to get random ones
     const shuffledArticles = unusedArticles.sort(() => 0.5 - Math.random());
 
-    // We need up to 3 articles in total
-    const selectedArticles = shuffledArticles.slice(0, 3);
-    console.log("Selected Articles:", selectedArticles.map(a => a.title));
+    // Select a single article for generation
+    const selectedArticle = shuffledArticles[0];
+    console.log("Selected Article:", selectedArticle.title);
 
-    // Fetch a random author for the selected concept
+    // Fetch a random author
     const authorsTableName = Resource.Authors.name;
-    const { Items: authors } = await ddbDocClient.send(new QueryCommand({
-      TableName: authorsTableName,
-      IndexName: "concept-index",
-      KeyConditionExpression: "concept = :c",
-      ExpressionAttributeValues: { ":c": selectedConcept },
-    }));
+    const { Items: authors } = await ddbDocClient.send(new ScanCommand({ TableName: authorsTableName }));
 
     if (!authors || authors.length === 0) {
-      throw new Error(`No authors found for concept: ${selectedConcept}`);
+      throw new Error("No authors found in Authors table.");
     }
     const randomAuthor = authors[Math.floor(Math.random() * authors.length)];
-    console.log("Selected Author:", randomAuthor.name, "Style:", randomAuthor.style);
+    console.log("Selected Author:", randomAuthor.name);
 
-    // Fetch existing topics
-    const articlesTableNameForTopics = Resource.Articles.name;
-    const scanTopicsCommand = new ScanCommand({
-      TableName: articlesTableNameForTopics,
-      ProjectionExpression: "topic",
-    });
-    const { Items: articlesForTopics } = await ddbDocClient.send(scanTopicsCommand);
-    const existingTopics: string[] = articlesForTopics ? [...new Set(articlesForTopics.map((article: any) => article.topic).filter(Boolean))] : ["News", "Politics", "Business", "Technology"];
-    const topicsList = existingTopics.join(', ');
-
-    let prompt = "";
-    let imagePrompt = "";
-    let articleHeadline = "";
-    let articleTopic = "News";
-
-    // Base prompt instructions for all concepts
-    const baseInstructions = `You are a satirical news writer for a website called 'Fauxios' that mimics the style of a major news publication. Your writing style should be: "${randomAuthor.style}". The satire must "punch up," targeting institutions, people in power, or corporations, never marginalized groups. Brevity and Efficiency: The headline and first paragraph must get the joke across immediately. Articles should be short and to the point. Use Specific Details: The humor must come from a single, absurd detail or from the specific juxtaposition of a modern event with a historical term. Use Quotes and Loaded Language: Use quotes to make headlines feel authentic and incorporate charged language (e.g., "monstrous," "unprecedented") in a calm, journalistic tone. Maintain a Consistent Style: Every element of the piece must serve the central joke. Focus on creating a humorous and entertaining narrative. The goal is to make the reader laugh, not to provide a sophisticated but meaningless political commentary. The humor should be deadpan. Strongly avoid puns. IMPORTANT: Always replace any mention of the current or former US President (e.g., Trump, Biden) with "the Cat Emperor". His inner circle and supporters should be referred to as "the cat cabal". The Cat Emperor is a mischievous and sadistic cat. The cat cabal are his sycophantic followers. Frame all their actions and motivations in the context of feline behavior (e.g., knocking things off shelves, demanding food, sleeping in sunbeams, etc.).`;
-
-    switch (selectedConcept) {
-      case "Real Problem":
-        if (selectedArticles.length < 1) {
-          throw new Error("Not enough articles for Real Problem concept.");
-        }
-        const article = selectedArticles[0];
-        articleHeadline = article.title;
-        const articleContent = article.content || article.description || "";
-
-        // Fetch a random real problem
-        const realProblemsTableName = Resource.RealProblems.name;
-        const { Items: realProblems } = await ddbDocClient.send(new ScanCommand({ TableName: realProblemsTableName }));
-        if (!realProblems || realProblems.length === 0) {
-          throw new Error("No real problems found in RealProblems table.");
-        }
-        const randomProblem = realProblems[Math.floor(Math.random() * realProblems.length)];
-        console.log("Random Real Problem:", randomProblem.description);
-
-        // Fetch related statistics
-        const problemStatsTableName = Resource.ProblemStats.name;
-        const { Items: problemStats } = await ddbDocClient.send(new QueryCommand({
-          TableName: problemStatsTableName,
-          KeyConditionExpression: "problemName = :pn",
-          ExpressionAttributeValues: { ":pn": randomProblem.problemId },
-        }));
-        let randomStat = null;
-        if (problemStats && problemStats.length > 0) {
-          randomStat = problemStats[Math.floor(Math.random() * problemStats.length)];
-          console.log("Random Problem Stat:", randomStat.description);
-        }
-
-        prompt = `${baseInstructions}` +
-          `
-Your task is to write a satirical article that attributes the entire debate around the headline to a seemingly unrelated but real human problem.` +
-          `
-Source Article Content: ${articleContent}` +
-          `
-Input Headline: ${articleHeadline}\nReal Problem: ${randomProblem.description}\n${randomStat ? `Relevant Statistic: ${randomStat.description} (${randomStat.value})` : ''}` +
-          `
-Write the article following these sections:
-Headline:
-<Your satirical headline>
-Hook:
-<A standard, journalistic opening sentence.>
-Details:
-- <A factual-sounding detail.>
-- <The absurd detail linking to the real problem, presented as a legitimate fact.>
-- <Another factual-sounding detail.>
-Why it Matters:
-<A concluding paragraph that explains the real-world implications.>
-Topic:
-<Choose the most relevant topic from this list: ${topicsList}. If none are suitable, you can use a general topic like "World News" or "Culture".>
-Hashtags:
-<hashtag1, hashtag2, hashtag3>`;
-        imagePrompt = `A satirical news image related to the headline: "${articleHeadline}" and the human problem: "${randomProblem.description}". The image should be absurd and humorous, without text or logos.`;
-        break;
-
-      case "Grand Unified Theory":
-        if (selectedArticles.length < 2) {
-          throw new Error("Not enough articles for Grand Unified Theory concept.");
-        }
-        const article1 = selectedArticles[0];
-        const article2 = selectedArticles[1];
-        articleHeadline = `${article1.title} and ${article2.title}`;
-        const article1Content = article1.content || article1.description || "";
-        const article2Content = article2.content || article2.description || "";
-
-        prompt = `${baseInstructions}` +
-          `
-Your task is to take two unrelated news headlines and create a satirical theory that absurdly links them together as a single causal event.` +
-          `
-Source Article 1 Content: ${article1Content}` +
-          `
-Source Article 2 Content: ${article2Content}` +
-          `
-Headline 1: ${article1.title}\nHeadline 2: ${article2.title}` +
-          `
-Write the article following these sections:
-Headline:
-<Your satirical headline>
-Hook:
-<A standard, journalistic opening sentence.>
-Details:
-- <A factual-sounding detail related to Headline 1.>
-- <A factual-sounding detail related to Headline 2.>
-- <The absurd theory linking them, presented as a legitimate fact.>
-Why it Matters:
-<A concluding paragraph that explains the real-world implications.>
-Topic:
-<Choose the most relevant topic from this list: ${topicsList}. If none are suitable, you can use a general topic like "World News" or "Culture".>
-Hashtags:
-<hashtag1, hashtag2, hashtag3>`;
-        imagePrompt = `A satirical news image absurdly linking two unrelated headlines: "${article1.title}" and "${article2.title}". The image should be humorous, without text or logos.`;
-        break;
-
-      case "Historical Narrator":
-        if (selectedArticles.length < 3) {
-          throw new Error("Not enough articles for Historical Narrator concept.");
-        }
-        const articleA = selectedArticles[0];
-        const articleB = selectedArticles[1];
-        const articleC = selectedArticles[2];
-        articleHeadline = `${articleA.title}, ${articleB.title}, and ${articleC.title}`;
-        const articleAContent = articleA.content || articleA.description || "";
-        const articleBContent = articleB.content || articleB.description || "";
-        const articleCContent = articleC.content || articleC.description || "";
-
-        const historicalThemesTableName = Resource.HistoricalThemes.name;
-        const { Items: historicalThemes } = await ddbDocClient.send(new ScanCommand({ TableName: historicalThemesTableName }));
-        if (!historicalThemes || historicalThemes.length === 0) {
-          throw new Error("No historical themes found in HistoricalThemes table.");
-        }
-        const randomHistoricalTheme = historicalThemes[Math.floor(Math.random() * historicalThemes.length)];
-        console.log("Random Historical Theme:", randomHistoricalTheme.description);
-
-        prompt = `${baseInstructions}` +
-          `
-Your task is to take three current news headlines and write a single article that explains them as the modern-day echo of a specific historical period or theme.` +
-          `
-Source Article 1 Content: ${articleAContent}` +
-          `
-Source Article 2 Content: ${articleBContent}` +
-          `
-Source Article 3 Content: ${articleCContent}` +
-          `
-Headline 1: ${articleA.title}\nHeadline 2: ${articleB.title}\nHeadline 3: ${articleC.title}\nHistorical Theme: ${randomHistoricalTheme.description}` +
-          `
-Write the article following these sections:
-Headline:
-<Your satirical headline>
-Hook:
-<A standard, journalistic opening sentence.>
-Details:
-- <A factual-sounding detail related to Headline 1.>
-- <A factual-sounding detail related to Headline 2.>
-- <A factual-sounding detail related to Headline 3.>
-- <The absurd historical echo, presented as a legitimate fact.>
-Why it Matters:
-<A concluding paragraph that explains the real-world implications.>
-Topic:
-<Choose the most relevant topic from this list: ${topicsList}. If none are suitable, you can use a general topic like "World News" or "Culture".>
-Hashtags:
-<hashtag1, hashtag2, hashtag3>`;
-        imagePrompt = `A satirical news image depicting the modern-day echo of the historical theme: "${randomHistoricalTheme.description}" in relation to current events. The image should be humorous, without text or logos.`;
-        break;
-
-      default:
-        throw new Error("Invalid concept selected.");
-    }
-
+    // Initialize Google Generative AI for embedding and content generation
     const geminiApiKey = Resource.GeminiApiKey.value;
     if (!geminiApiKey) {
       throw new Error("Gemini API Key is not available.");
     }
     const genAI = new GoogleGenerativeAI(geminiApiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const embeddingModel = genAI.getGenerativeModel({ model: "text-embedding-004" });
+
+
+    const articleHeadline = selectedArticle.title;
+    const articleContent = selectedArticle.content || selectedArticle.description || "";
+
+    // Generate embedding for the selected article's content
+    const articleEmbeddingResult = await embeddingModel.embedContent({
+      content: { parts: [{ text: articleContent }], role: "user" },
+      taskType: TaskType.RETRIEVAL_QUERY,
+    });
+    const articleEmbedding = articleEmbeddingResult.embedding.values;
+
+    // Perform vector search
+    const similarities = ALL_EMBEDDINGS.map((historicalSnippet) => ({
+      ...historicalSnippet,
+      similarity: cosineSimilarity(articleEmbedding, historicalSnippet.embedding),
+    }));
+
+    // Sort by similarity and get top 5 relevant snippets
+    const relevantSnippets = similarities
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, 5);
+
+    console.log("Top 5 Relevant Historical Snippets:");
+    relevantSnippets.forEach((snippet) => {
+      console.log(`- Source: ${snippet.source}, Similarity: ${snippet.similarity.toFixed(4)}`);
+    });
+
+    // Step 1: Format the historical context from your vector search results
+    const historical_context = relevantSnippets
+      .map(snippet => `- From ${snippet.source}: "${snippet.content.trim()}"`) // Corrected escaping for quotes within template literal
+      .join('\n');
+
+    // Step 2: Construct the new, integrated prompt
+    const prompt = `### PERSONA & STYLE GUIDE ###
+You are an expert political correspondent and historian for 'Fauxios', a prestigious satirical news publication. Your writing style is modern, formal, and professional, with the gravity of a constitutional scholar.
+
+Your satire must always punch up, targeting institutions and power. The humor is deadpan, subtle, and intellectual, arising from the stark, unblinking comparison between modern events and historical precedents. Avoid puns and overt jokes. Your unique characteristic is that you analyze ALL current political events through the specific lens of the grievances that led to the American Revolution.
+
+### TASK ###
+Your task is to write a formal, analytical, yet satirical news article. Use the provided historical context to frame your satirical analysis of the modern event. The goal is to make the reader see the event not as a routine political squabble, but as a direct echo of a foundational threat to liberty.
+
+### INPUTS ###
+**Modern News Event:**
+Headline: "${articleHeadline}"
+Content: "${articleContent}"
+
+**Relevant Historical Context:**
+${historical_context}
+
+### OUTPUT FORMAT ###
+Write the article strictly following these sections:
+Headline:
+<Your satirical headline that connects the modern event to a historical theme>
+Hook:
+<A standard, journalistic opening sentence.>
+Details:
+- <A factual-sounding detail from the modern event.>
+- <An absurd detail that links the modern event to the historical context, presented factually.>
+- <Another detail that reinforces the satirical premise.>
+Why it Matters:
+<A concluding paragraph that explains the real-world implications, framed with historical gravity.>
+Topic:
+<Choose the single most relevant topic from this list: ${TOP_LEVEL_TOPICS.join(', ')}.>
+Hashtags:
+<hashtag1, hashtag2, hashtag3>
+`;
 
     const geminiResult = await model.generateContent(prompt);
     const fullGeneratedContent = geminiResult.response.text();
     console.log("Full Generated Content:\n", fullGeneratedContent);
 
     // New parsing logic
-    const sections = fullGeneratedContent.split(/\*\*\s*(Headline|Hook|Details|Why it Matters|Topic|Hashtags):\s*\*\*/).filter(Boolean);
+    const sections = fullGeneratedContent.split(/(Headline|Hook|Details|Why it Matters|Topic|Hashtags)\s*:\s*\n*/);
     const parsedSections: { [key: string]: string } = {};
-    for (let i = 0; i < sections.length; i += 2) {
-      const sectionName = sections[i].trim();
-      if (sections[i + 1]) {
-        const sectionContent = sections[i + 1].trim();
-        parsedSections[sectionName] = sectionContent;
-      }
+
+    // Start from index 1 because sections[0] will be an empty string before the first matched delimiter
+    for (let i = 1; i < sections.length; i += 2) {
+      const sectionName = sections[i].trim(); // This will be "Headline", "Hook", etc.
+      const sectionContent = sections[i + 1] ? sections[i + 1].trim() : ""; // This will be the content
+      parsedSections[sectionName] = sectionContent;
     }
 
     const articleTitle = parsedSections["Headline"];
@@ -275,7 +251,7 @@ Hashtags:
     }
 
     const articleWhyItMatters = parsedSections["Why it Matters"] || "";
-    articleTopic = parsedSections["Topic"] || "News";
+    const articleTopic = parsedSections["Topic"] || "World"; // Default to 'World' if AI doesn't provide one
     const hashtagsString = parsedSections["Hashtags"] || "";
     const articleHashtags = hashtagsString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
@@ -287,6 +263,9 @@ Hashtags:
     console.log("Extracted Hashtags:", articleHashtags);
 
     const articleId = `article-${Date.now()}`;
+
+    // Step 3: Replace your old imagePrompt with this one
+    const imagePrompt = `A satirical, serious-looking news image related to a satirical article with the headline: "${parsedSections["Headline"]}". The image should be absurdly humorous in a subtle way, without text or logos, suitable for a publication that mixes historical analysis with modern news.`;
 
     // 4. Generate an image for the article
     console.log("Generating image for the article...");

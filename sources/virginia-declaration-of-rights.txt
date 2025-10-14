@@ -1,0 +1,239 @@
+Introduction
+
+The Virginia Declaration of Rights was adopted by the House of Burgesses in June, 1776. Among the delegates were George Mason, the most important contributor, and twenty-five-year-old James Madison, who drafted the section on the “free exercise of religion.” Also present at the creation of the Virginia Declaration and Constitution were John Blair and Edmund Randolph. Eleven years later, these four delegates were chosen to the seven-member Virginia delegation to the Constitutional Convention.
+
+The “rights” listed in the first five sections might strike the contemporary reader as odd; it is important to remember, however, that among the most fundamental rights articulated by the revolutionary generation was the right of the people to choose their form of government. Note the articulation of the separation of powers doctrine. Sections six through fourteen cover familiar ground. Most of the civil rights and criminal procedures listed were part of the Americanized version of the “rights of Englishmen” tradition. Section fifteen reflects the traditional republican argument that free government could survive only if the people were virtuous. Because colonial America turned to religion to perform this important political function, there was a presumption that religion had an “established” status. In 1776, the Anglican Church was the established church of Virginia, and there is nothing in the Virginia Declaration of Rights that challenges this establishment. On the other hand, Madison incorporated into Section sixteen an argument for the free exercise of religion, claiming that “the duty which we owe to our CREATOR, and the manner of discharging it, can be directed only by reason and conviction, not by force or violence.” This assertion challenges the establishment of any particular sect, even for the purpose of inculcating the morality that Madison himself elsewhere argued was essential to republican government.
+
+The same Convention also framed and adopted the Virginia Constitution. The first, and longest, section anticipates 
+the Declaration of Independence
+: Twenty-one separate indictments are listed against King George. Section two provides the authorization for establishing a new foundation. Sections three through eight and ten through twelve pertain to the bicameral legislature; and most of the remaining sections focus on the election, appointment, or removal of executive and judicial officers. Section twenty-one lays the foundation for the 
+Northwest Ordinance
+, by ceding western lands disputed between Virginia and other states to the latter, and by anticipating the creation of new states in the western territory Virginia still held title to. (The ordinance, which laid the plan for settling the western territory and admitting sections of it as new states, would be passed by the Confederation Congress in 1787.)
+
+The Arabic numerals identifying the separate sections of the Declaration of Rights are in the original. We have followed W. W. Hening, 
+Statutes at Large
+ (Richmond: George Cochran, 1823 [IX: 109-119]) and added section numbers to the Virginia Constitution. These sections are identified by Roman numerals.
+
+ &#8212;Gordon Lloyd
+
+W. W. Hening, Statutes at Large (Richmond: George Cochran, 1823 [IX: 109-119]
+
+Declaration of Rights
+
+A DECLARATION OF RIGHTS made by the representatives of the good people of Virginia, assembled in full and free Convention; which rights do pertain to them and their posterity, as the basis and foundation of government.
+
+THAT all men are by nature equally free and independent, and have certain inherent rights, of which, when they enter into a state of society, they cannot, by any compact, deprive or divest their posterity; namely, the enjoyment of life and liberty, with the means of acquiring and possessing property, and pursuing and obtaining happiness and safety.
+
+That all power is vested in, and consequently derived from, the people; that magistrates are their trustees and servants, and at all times amenable to them.
+
+That government is, or ought to be, instituted for the common benefit, protection, and security of the people, nation, or community; of all the various modes and forms of government, that is best, which is capable of producing the greatest degree of happiness and safety, and is most effectually secured against the danger of maladministration; and that whenever any government shall be found inadequate or contrary to these purposes, a majority of the community hath an indubitable, unalienable, and indefeasible right, to reform, alter, or abolish it, in such manner as shall be judged most conducive to the public weal.
+
+1
+
+That no man, or set of men, are entitled to exclusive or separate emoluments and privileges from the community, but in consideration of public services; which, not being descendible,
+
+2
+
+ neither ought the offices of magistrate, legislator, or judge to be hereditary.
+
+That the legislative and executive powers of the State should be separate and distinct from the judiciary; and that the members of the two first may be restrained from oppression, by feeling and participating the burthens
+
+3
+
+ of the people, they should, at fixed periods, be reduced to a private station, return into that body from which they were originally taken, and the vacancies be supplied by frequent, certain, and regular elections, in which all, or any part of the former members, to be again eligible, or ineligible, as the laws shall direct.
+
+That elections of members to serve as representatives of the people, in assembly, ought to be free; and that all men, having sufficient evidence of permanent common interest with, and attachment to, the community, have the right of suffrage, and cannot be taxed or deprived of their property for public uses without their own consent, or that of their representative so elected, nor bound by any law to which they have not, in like manner, assented, for the public good.
+
+That all power of suspending laws, or the execution of laws, by any authority, without consent of the representatives of the people, is injurious to their rights, and ought not to be exercised.
+
+That in all capital or criminal prosecutions a man hath a right to demand the cause and nature of his accusation, to be confronted with the accusers and witnesses, to call for evidence in his favor, and to a speedy trial by an impartial jury of twelve men of his vicinage,
+
+4
+
+ without whose unanimous consent he cannot be found guilty, nor can he be compelled to give evidence against himself; that no man be deprived of his liberty, except by the law of the land or the judgment of his peers.
+
+That excessive bail ought not to be required, nor excessive fines imposed, nor cruel and unusual punishments inflicted.
+
+That general warrants, whereby any officer or messenger may be commanded to search suspected places without evidence of a fact committed, or to seize any person or persons not named, or whose offence is not particularly described and supported by evidence, are grievous and oppressive, and ought not to be granted.
+
+That in controversies respecting property, and in suits between man and man, the ancient trial by jury is preferable to any other, and ought to be held sacred.
+
+That the freedom of the press is one of the great bulwarks of liberty, and can never be restrained but by despotic governments.
+
+That a well regulated militia, composed of the body of the people, trained to arms, is the proper, natural, and safe defense of a free state; that standing armies, in time of peace, should be avoided, as dangerous to liberty; and that, in all cases, the military should be under strict subordination to, and governed by, the civil power.
+
+That the people have a right to uniform government; and therefore, that no government separate from, or independent of, the government of Virginia, ought to be erected or established within the limits thereof.
+
+That no free government, or the blessing of liberty, can be preserved to any people, but by a firm adherence to justice, moderation, temperance, frugality, and virtue, and by frequent recurrence to fundamental principles.
+
+That religion, or the duty which we owe to our CREATOR, and the manner of discharging it, can be directed only by reason and conviction, not by force or violence, and therefore all men are equally entitled to the free exercise of religion, according to the dictates of conscience; and that it is the mutual duty of all to practice Christian forbearance, love, and charity, towards each other.
+
+Virginia Constitution
+
+The CONSTITUTION or FORM of GOVERNMENT, agreed to and resolved upon by the Delegates and Representatives of the several counties and corporations of Virginia.
+
+I. WHEREAS George the third, King of Great Britain and Ireland, and elector of Hanover, heretofore entrusted with the exercise of the kingly office in this government, hath endeavored to pervert the same into a detestable and insupportable tyranny, by putting his negative on laws the most wholesome and necessary for the public good:
+
+By denying his governors permission to pass laws of immediate and pressing importance, unless suspended in their operation for his assent, and, when so suspended, neglecting to attend to them for many years:
+
+By refusing to pass certain other laws, unless the persons to be benefitted by them would relinquish the inestimable right of representation in the legislature:
+
+By dissolving legislative Assemblies repeatedly and continually, for opposing with manly firmness his invasions of the rights of the people:
+
+When dissolved, by refusing to call others for a long space of time, thereby leaving the political system without any legislative head:
+
+By endeavoring to prevent the population of our country, and, for that purpose, obstructing the laws for the naturalization of foreigners:
+
+By keeping among us, in times of peace, standing armies and ships of war:
+
+By affecting to render the military independent of, and superior to, the civil power:
+
+By combining with others to subject us to a foreign jurisdiction, giving his assent to their pretended acts of legislation:
+
+For quartering large bodies of armed troops among us:
+
+For cutting off our trade with all parts of the world:
+
+For imposing taxes on us, without our consent:
+
+For depriving us of the benefits of trial by jury:
+
+For transporting us beyond seas, to be tried for pretended offences:
+
+For suspending our own legislatures, and declaring themselves invested with power to legislate for us in all cases whatsoever:
+
+By plundering our seas, ravaging our coasts, burning our towns, and destroying the lives of our people:
+
+By inciting insurrections of our fellow subjects, with the allurements of forfeiture and confiscation:
+
+By prompting our negroes to rise in arms among us, those very negroes whom, by an inhuman use of his negative, he hath refused us permission to exclude by law:
+
+By endeavoring to bring on the inhabitants of our frontiers the merciless Indian savages, whose known rule of warfare is an undistinguished destruction of all ages, sexes, and conditions of existence:
+
+By transporting, at this time, a large army of foreign mercenaries, to complete the works of death, desolation, and tyranny, already begun with circumstances of cruelty and perfidy unworthy the head of a civilized nation:
+
+By answering our repeated petitions for redress with a repetition of injuries:
+
+And finally, by abandoning the helm of government, and declaring us out of his allegiance and protection.
+
+By which several acts of misrule, the government of this country, as formerly exercised under the crown of Great Britain, is TOTALLY DISSOLVED.
+
+II. We therefore, the delegates and representatives of the good people of Virginia, having maturely considered the premises, and viewing with great concern the deplorable condition to which this once happy country must be reduced, unless some regular, adequate mode of civil polity is speedily adopted, and in compliance with a recommendation of the General Congress, do ordain and declare the future form of government of Virginia to be as follows:
+
+III. The legislative, executive, and judiciary departments, shall be separate and distinct, so that neither exercise the powers properly belonging to the other; nor shall any person exercise the powers of more than one of them at the same time, except that the justices of the county courts shall be eligible to either House of Assembly.
+
+IV. The legislative shall be formed of two distinct branches, who, together, shall be a complete legislature. They shall meet once, or oftener, every year, and shall be called the GENERAL ASSEMBLY OF VIRGINIA.
+
+V. One of these shall be called the HOUSE OF DELEGATES, and consist of two representatives to be chosen for each county, and for the District of West-Augusta, annually, of such men as actually reside in, and are freeholders of the same, or duly qualified according to law, and also of one delegate or representative to be chosen annually for the city of Williamsburg, and one for the borough of Norfolk, and a representative for each of such other cities and boroughs as may hereafter be allowed particular representation by the legislature; but when any city or borough shall so decrease as that the number of persons having right of suffrage therein shall have been for the space of seven years successively less than half the number of voters in some one county in Virginia, such city or borough thenceforward shall cease to send a delegate or representative to the Assembly.
+
+VI. The other shall be called the SENATE, and consist of twenty four members, of whom thirteen shall constitute a House to proceed on business, for whose election the different counties shall be divided into twenty four districts, and each county of the respective district, at the time of the election of its delegates, shall vote for one Senator, who is actually a resident and freeholder within the district, or duly qualified according to law, and is upwards of twenty five years of age; and the sheriffs of each county within five days at farthest after the last county election in the district, shall meet at some convenient place, and from the poll so taken in their respective counties return as a Senator the man who shall have the greatest number of votes in the whole district. To keep up this Assembly by rotation, the districts shall be equally divided into four classes, and numbered by lot. At the end of one year after the general election, the six members elected by the first division shall be displaced, and the vacancies thereby occasioned supplied from such class or division, by new election, in the manner aforesaid. This rotation shall be applied to each division, according to its number, and continued in due order annually.
+
+VII. The right of suffrage in the election of members for both Houses shall remain as exercised at present, and each House shall choose its own speaker, appoint its own officers, settle its own rules of proceeding, and direct writs of election for supplying intermediate vacancies.
+
+VIII. All laws shall originate in the House of Delegates, to be approved or rejected by the Senate, or to be amended with the consent of the House of Delegates; except money bills, which in no instance shall be altered by the Senate, but wholly approved or rejected.
+
+IX. A Governor, or chief magistrate, shall be chosen annually, by joint ballot of both Houses, to be taken in each House respectively, deposited in the conference room, the boxes examined jointly by a committee of each house, and the numbers severally reported to them, that the appointments may be entered (which shall be the mode of taking the joint ballot of both Houses in all cases) who shall not continue in that office longer than three years successively, nor be eligible until the expiration of four years after he shall have been out of that office. An adequate, but moderate salary, shall be settled on him during his continuance in office; and he shall, with the advice of a Council of State, exercise the executive powers of government according to the laws of this commonwealth; and shall not, under any pretense, exercise any power or prerogative by virtue of any law, statute, or custom, of England: But he shall, with the advice of the Council of State, have the power of granting reprieves or pardons, except where the prosecution shall have been carried on by the House of Delegates, or the law shall otherwise particularly direct; in which cases, no reprieve or pardon shall be granted, but by resolve of the House of Delegates.
+
+X. Either House of the General Assembly may adjourn themselves respectively. The Governor shall not prorogue
+
+[5]
+
+ or adjourn the Assembly during their sitting, nor dissolve them at any time; but he shall, if necessary, either by advice of the Council of State, or on application of a majority of the House of Delegates, call them before the time to which they shall stand prorogued or adjourned.
+
+XI. A Privy Council, or Council of State, consisting of eight members, shall be chosen by joint ballot of both Houses of Assembly, either from their own members or the people at large, to assist in the administration of government. They shall annually choose out of their own members a president, who, in case of the death, inability, or necessary absence of the Governor from the government, shall act as Lieutenant Governor. Four members shall be sufficient to act, and their advice and proceedings shall be entered on record; and signed by the members present (to any part whereof any member may enter his dissent) to be laid before the General Assembly, when called for by them. This Council may appoint their own clerk, who shall have a salary settled by law, and take an oath of secrecy in such matters as he shall be directed by the board to conceal. A sum of money appropriated to that purpose shall be divided annually among the members, in proportion to their attendance; and they shall be incapable, during their continuance in office, of sitting in either House of Assembly. Two members shall be removed by joint ballot of both Houses of Assembly at the end of every three years, and be ineligible for the three next years. These vacancies, as well as those occasioned by death or incapacity, shall be supplied by new elections, in the same manner.
+
+XII. The delegates for Virginia to the Continental Congress shall be chosen annually, or superseded in the mean time by joint ballot of both Houses of Assembly.
+
+XIII. The present militia officers shall be continued, and vacancies supplied by appointment of the Governor, with the advice of the Privy Council, or recommendations from the respective county courts; but the Governor and Council shall have a power of suspending any officer, and ordering a court-martial on complaint for misbehavior or inability, or to supply vacancies of officers happening when in actual service. The Governor may embody the militia, with the advice of the Privy Council; and, when embodied, shall alone have the direction of the militia under the laws of the country.
+
+XIV. The two Houses of Assembly shall, by joint ballot, appoint Judges of the Supreme Court of Appeals, and General Court, Judges in Chancery, Judges of Admiralty, Secretary, and the Attorney-General, to be commissioned by the Governor, and continue in office during good behavior. In case of death, incapacity, or resignation, the Governor, with the advice of the Privy Council, shall appoint persons to succeed in office, to be approved or displaced by both Houses. These officers shall have fixed and adequate salaries, and, together with all others holding lucrative offices, and all ministers of the Gospel of every denomination, be incapable of being elected members of either House of assembly, or the Privy Council.
+
+XV. The Governor, with the advice of the Privy Council, shall appoint Justices of the Peace for the counties; and in case of vacancies, or a necessity of increasing the number hereafter, such appointments to be made upon the recommendation of the respective county courts. The present acting Secretary in Virginia, and Clerks of all the County Courts, shall continue in office. In case of vacancies, either by death, incapacity, or resignation, a Secretary shall be appointed as before directed, and the Clerks by the respective courts. The present and future Clerks shall hold their offices during good behavior, to be judged of and determined in the General Court. The Sheriffs and Coroners shall be nominated by the respective courts, approved by the Governor, with the advice of the Privy Council, and commissioned by the Governor. The Justices shall appoint Constables, and all fees of the aforesaid officers be regulated by law.
+
+XVI. The Governor, when he is out of office, and others offending against the state, either by maladministration, corruption, or other means by which the safety of the state may be endangered, shall be impeachable by the House of Delegates. Such impeachment to be prosecuted by the Attorney-General, or such other person or persons as the House may appoint in the General Court, according to the laws of the land. If found guilty, he or they shall be either for ever disabled to hold any office under government, or removed from such Office 
+pro tempore
+,
+
+6
+
+ or subjected to such pains or penalties as the laws shall direct.
+
+XVII. If all, or any of the Judges of the General Court, shall, on good grounds (to be judged of by the House of Delegates) be accused of any of the crimes or offences before-mentioned, such House of Delegates may, in like manner, impeach the Judge or Judges so accused, to be prosecuted in the Court of Appeals; and he or they, if found guilty, shall be punished in the same manner as is prescribed in the preceding clause.
+
+XVIII. Commissions and grants shall run, 
+In the name of the COMMONWEALTH of VIRGINIA
+, and bear test by the Governor with the seal of the commonwealth annexed. Writs shall run in the same manner, and bear test by the clerks of the several courts. Indictments shall conclude, 
+Against the peace and dignity of the commonwealth
+.
+
+XIX. A treasurer shall be appointed annually, by joint ballot of both Houses.
+
+XX. All escheats,
+
+7
+
+ penalties, and forfeitures, heretofore going to the king, shall go to the commonwealth, save only such as the legislature may abolish, or otherwise provide for.
+
+XXI. The territories contained within the charters erecting the colonies of Maryland, Pennsylvania, North and South Carolina, are hereby ceded, released, and for ever confirmed to the people of those colonies respectively, with all the rights of property, jurisdiction, and government, and all other rights whatsoever which might at any time heretofore have been claimed by Virginia, except the free navigation and use of the rivers Potowmack
+
+8
+
+ and Pohomoke
+
+9
+
+, with the property of the Virginia shores or strands bordering on either of the said rivers, and all improvements which have been or shall be made thereon. The western and northern extent of Virginia shall in all other respects stand as fixed by the Charter of King James the first, in the year one thousand six hundred and nine, and by the public treaty of peace between the courts of Great Britain and France in the year one thousand seven hundred and sixty three; unless by act of legislature, one or more territories shall hereafter be laid off, and governments established westward of the Allegheny mountains. And no purchase of land shall be made of the Indian natives but on behalf of the public, by authority of the General Assembly.
+
+XXII. In order to introduce this government, the representatives of the people met in Convention shall choose a Governor and Privy Council, also such other officers directed to be chosen by both Houses as may be judged necessary to be immediately appointed. The Senate to be first chosen by the people, to continue until the last day of March next, and the other officers until the end of the succeeding session of Assembly. In case of vacancies, the speaker of either House shall issue writs for new elections.
+
+Footnotes
+
+1.
+
+welfare
+
+2.
+
+able to descend to an heir
+
+3.
+
+burdens
+
+4.
+
+living in the same area or neighborhood
+
+5.
+
+discontinue or postpone the meetings of
+
+6.
+
+temporarily
+
+7.
+
+reversions of property in absence of a legal heir
+
+8.
+
+Potomac River
+
+9.
+
+Pocomoke River
+
+Prior 
+Document
+
+Resolves for Independence
+
+June 07, 1776
+
+Next 
+Document
+
+Virginia Declaration of Rights and Constitution
+
+June 12, 1776

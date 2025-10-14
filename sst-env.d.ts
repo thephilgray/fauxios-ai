@@ -21,13 +21,17 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "Embeddings": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "FauxiosGenerator": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "GeminiApiKey": {
       "type": "sst.sst.Secret"
       "value": string
-    }
-    "HistoricalThemes": {
-      "name": string
-      "type": "sst.aws.Dynamo"
     }
     "ImageProcessor": {
       "name": string
@@ -41,17 +45,9 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "ProblemStats": {
-      "name": string
-      "type": "sst.aws.Dynamo"
-    }
     "ProcessedImages": {
       "name": string
       "type": "sst.aws.Bucket"
-    }
-    "RealProblems": {
-      "name": string
-      "type": "sst.aws.Dynamo"
     }
     "SeedConceptsFunction": {
       "name": string
