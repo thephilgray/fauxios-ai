@@ -58,11 +58,11 @@ try {
   </head>
   <body class="font-sans antialiased text-gray-900 bg-gray-50">
     <header class="bg-white shadow-sm py-3">
-      <div class="container mx-auto px-4 flex justify-between items-center">
+      <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
         <a href="/" class="flex items-center justify-center min-w-fit">
           <img src="/images/fauxios-logo.svg" alt="Fauxios Logo" class="h-8 w-auto" />
         </a>
-        <nav class="flex flex-wrap justify-center gap-4">
+        <nav class="flex flex-wrap justify-center gap-4 mt-4 md:mt-0">
           <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
           {topics.map((topicItem, index) => (
             <a 
@@ -77,7 +77,7 @@ try {
       </div>
     </header>
 
-    <main class="container mx-auto px-4 py-4">
+    <main class="container mx-auto px-2 py-2 md:px-4 md:py-4">
       <slot />
     </main>
 

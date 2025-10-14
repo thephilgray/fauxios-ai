@@ -243,7 +243,11 @@ Hashtags:
 
     const articleTitle = parsedSections["Headline"];
     const articleHook = parsedSections["Hook"];
-    const articleDetails = parsedSections["Details"];
+    let articleDetails = parsedSections["Details"];
+
+    if (articleDetails) {
+      articleDetails = articleDetails.split('\n').map(line => line.replace(/^-|\*\s*/, '').trim()).join('\n');
+    }
 
     if (!articleTitle || !articleHook || !articleDetails) {
       throw new Error("Failed to generate all required article sections.");
