@@ -1,14 +1,14 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, QueryCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { GoogleGenerativeAI, TaskType } from "@google/generative-ai";
 import fetch from "node-fetch";
 import { Resource } from "sst";
 import { Buffer } from 'buffer';
 import * as fs from "fs";
-import * as path from "path";
 import * as zlib from "zlib";
 import { Readable } from "stream"; // Import Readable from 'stream'
+import { TOP_LEVEL_TOPICS } from "../constants";
 
 interface EmbeddingData {
   source: string;
@@ -27,7 +27,6 @@ const ddbClient = new DynamoDBClient({});
 const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 const s3Client = new S3Client({});
 
-import { TOP_LEVEL_TOPICS } from "../constants";
 
 async function downloadEmbeddingsFromS3() {
   console.log(`Downloading ${EMBEDDINGS_FILE_KEY} from S3 bucket ${EMBEDDINGS_BUCKET_NAME} to ${LOCAL_COMPRESSED_EMBEDDINGS_FILE_PATH}...`);

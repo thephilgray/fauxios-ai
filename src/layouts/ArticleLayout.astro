@@ -59,13 +59,17 @@ try {
   <body class="font-sans antialiased text-gray-900 bg-gray-50">
     <header class="bg-white shadow-sm py-3">
       <div class="container mx-auto px-4 flex justify-between items-center">
-        <a href="/" class="flex items-center justify-center">
+        <a href="/" class="flex items-center justify-center min-w-fit">
           <img src="/images/fauxios-logo.svg" alt="Fauxios Logo" class="h-8 w-auto" />
         </a>
         <nav class="flex flex-wrap justify-center gap-4">
           <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
-          {topics.map(topicItem => (
-            <a href={`/topics/${topicItem.toLowerCase()}`} class="text-gray-700 hover:text-blue-600 font-medium">
+          {topics.map((topicItem, index) => (
+            <a 
+              href={`/topics/${topicItem.toLowerCase()}`}
+              class={`text-gray-700 hover:text-blue-600 font-medium ${
+                index >= 2 ? 'hidden md:inline' : ''
+              }`}>
               {topicItem.charAt(0).toUpperCase() + topicItem.slice(1)}
             </a>
           ))}

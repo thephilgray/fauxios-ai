@@ -17,10 +17,6 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
-    "ClearArticlesFunction": {
-      "name": string
-      "type": "sst.aws.Function"
-    }
     "Embeddings": {
       "name": string
       "type": "sst.aws.Bucket"
@@ -48,10 +44,6 @@ declare module "sst" {
     "ProcessedImages": {
       "name": string
       "type": "sst.aws.Bucket"
-    }
-    "SeedConceptsFunction": {
-      "name": string
-      "type": "sst.aws.Function"
     }
     "SocialMediaPoster": {
       "name": string
