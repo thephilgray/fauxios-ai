@@ -90,12 +90,6 @@ export default $config({
     const geminiApiKey = new sst.Secret("GeminiApiKey");
     const newsdataApiKey = new sst.Secret("NewsdataApiKey");
 
-    const clearArticlesFunction = new sst.aws.Function("ClearArticlesFunction", {
-      handler: "src/functions/clearArticles.handler",
-      link: [articlesTable],
-    });
-
-
     const fauxiosGeneratorFunction = new sst.aws.Function("FauxiosGenerator", {
       handler: "src/functions/fauxiosGenerator.handler",
       link: [

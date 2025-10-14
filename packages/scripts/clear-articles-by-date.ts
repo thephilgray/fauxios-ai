@@ -1,3 +1,4 @@
+
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
@@ -9,20 +10,26 @@ import { Resource } from "sst";
 const ddbClient = new DynamoDBClient({});
 const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 
-export async function handler() {
+async function clearArticlesByDate(dateString: string) {
   const tableName = Resource.Articles.name;
-  console.log(`Scanning table: ${tableName} to clear all items.`);
+  const endDate = new Date(dateString);
+
+  console.log(`Scanning table: ${tableName} to clear items on or before ${endDate.toISOString()}.`);
 
   try {
     const scanCommand = new ScanCommand({
       TableName: tableName,
+      FilterExpression: "createdAt <= :endDate",
+      ExpressionAttributeValues: {
+        ":endDate": endDate.toISOString(),
+      },
       ProjectionExpression: "articleId", // Only need the primary key for deletion
     });
 
     const { Items } = await ddbDocClient.send(scanCommand);
 
     if (!Items || Items.length === 0) {
-      console.log("Articles table is already empty.");
+      console.log("No articles found on or before the specified date.");
       return;
     }
 
@@ -46,8 +53,16 @@ export async function handler() {
       console.log(`Deleted a batch of ${batch.length} articles.`);
     }
 
-    console.log("Successfully cleared all articles from the table.");
+    console.log("Successfully cleared articles from the table based on the date provided.");
   } catch (error) {
     console.error("Error clearing articles table:", error);
   }
 }
+
+const dateArg = process.argv[2];
+if (!dateArg) {
+  console.error("Please provide a date string as an argument (e.g., '2023-10-27').");
+  process.exit(1);
+}
+
+clearArticlesByDate(dateArg);
