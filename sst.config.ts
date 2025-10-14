@@ -32,13 +32,6 @@ export default $config({
       },
     });
 
-
-    
-
-    
-
-    
-
     const authorsTable = new sst.aws.Dynamo("Authors", {
       fields: {
         authorId: "string",
@@ -69,7 +62,6 @@ export default $config({
       handler: "src/functions/socialMediaPoster.handler",
       link: [articlesTable, twitterApiKey, twitterApiSecret, twitterAccessToken, twitterAccessTokenSecret, processedImagesBucket], // Grant access to the Articles table
     });
-  
 
     const imageProcessor = new sst.aws.Function("ImageProcessor", {
       handler: "src/functions/imageProcessor.handler",
@@ -103,10 +95,6 @@ export default $config({
       link: [articlesTable],
     });
 
-    const seedConceptsFunction = new sst.aws.Function("SeedConceptsFunction", {
-      handler: "src/functions/seedConcepts.handler",
-      link: [articlesTable, authorsTable],
-    });
 
     const fauxiosGeneratorFunction = new sst.aws.Function("FauxiosGenerator", {
       handler: "src/functions/fauxiosGenerator.handler",
@@ -125,7 +113,6 @@ export default $config({
       },
     });
 
-
     if ($app.stage !== "phillipgray") {
       new sst.aws.Cron("FauxiosGeneratorCron", {
         schedule: "rate(24 hours)",
@@ -133,7 +120,6 @@ export default $config({
       });
     }    
     
-
     const api = new sst.aws.ApiGatewayV2("Api"); // Changed to ApiGatewayV2
     api.route("GET /articles", {
       handler: "src/functions/articles.handler",
