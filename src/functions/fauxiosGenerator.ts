@@ -268,7 +268,11 @@ Hashtags:
     const articleId = `article-${Date.now()}`;
 
     // Step 3: Replace your old imagePrompt with this one
-    const imagePrompt = `A satirical, serious-looking news image related to a satirical article with the headline: "${parsedSections["Headline"]}". The image should be absurdly humorous in a subtle way, without text or logos, suitable for a publication that mixes historical analysis with modern news.`;
+    let imagePrompt = `A satirical, somewhat serious-looking news image related to a satirical article with the headline: "${parsedSections["Headline"]}". The image should be absurdly humorous in a subtle way, without text or logos, suitable for a publication that mixes historical analysis with modern news.`;
+
+    if (articleHeadline.toLowerCase().includes('trump') || articleContent.toLowerCase().includes('trump')) {
+      imagePrompt += ` The image should depict Donald Trump in the style of a political cartoon of King George III from the American Revolutionary era. He should have a yellow wig instead of a white one, be wearing a royal red coat (the same color as a MAGA hat), and be adorned with an excessive amount of gold.`
+    }
 
     // 4. Generate an image for the article
     console.log("Generating image for the article...");
