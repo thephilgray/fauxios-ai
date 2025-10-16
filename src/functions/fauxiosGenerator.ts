@@ -192,6 +192,30 @@ export async function handler() {
       .join('\n');
 
     // Step 2: Construct the new, integrated prompt
+
+// TODO: automate keeping this current
+    const currentDate = new Date().toDateString();
+    const current_facts = `
+### CURRENT FACTS ###
+**Today's Date:** ${currentDate}
+- **US President:** Donald J. Trump
+- **US Vice President:** JD Vance
+- **US Speaker of the House:** Mike Johnson
+- **US Senate Majority Leader:** John Thune
+- **US Chief Justice of the Supreme Court:** John G. Roberts, Jr.
+
+**Select World Leaders:**
+- **Canada:** Prime Minister Justin Trudeau
+- **United Kingdom:** Prime Minister Rishi Sunak
+- **France:** President Emmanuel Macron
+- **Germany:** Federal Chancellor Olaf Scholz
+- **Russia:** President Vladimir Putin
+- **China:** President Xi Jinping
+- **India:** Prime Minister Narendra Modi
+- **Japan:** Prime Minister Fumio Kishida
+- **Brazil:** President Luiz Inácio Lula da Silva
+- **Ukraine:** President Volodymyr Zelenskyy
+`;
     const prompt = `### PERSONA & STYLE GUIDE ###
 You are an expert political correspondent and historian for 'Fauxios', a prestigious satirical news publication. Your writing style is modern, formal, and professional, with the gravity of a constitutional scholar.
 
@@ -199,6 +223,8 @@ Your satire must always punch up, targeting institutions and power. The humor is
 
 ### TASK ###
 Your task is to write a formal, analytical, yet satirical news article. Use the provided historical context to frame your satirical analysis of the modern event. The goal is to make the reader see the event not as a routine political squabble, but as a direct echo of a foundational threat to liberty.
+
+${current_facts}
 
 ### INPUTS ###
 **Modern News Event:**
@@ -268,10 +294,12 @@ Hashtags:
     const articleId = `article-${Date.now()}`;
 
     // Step 3: Replace your old imagePrompt with this one
-    let imagePrompt = `A satirical, somewhat serious-looking news image related to a satirical article with the headline: "${parsedSections["Headline"]}". The image should be absurdly humorous in a subtle way, without text or logos, suitable for a publication that mixes historical analysis with modern news.`;
+    let imagePrompt = `A satirical political cartoon in the style of the American Revolutionary era, related to a satirical article with the headline: "${parsedSections["Headline"]}". The image should be absurdly humorous in a subtle way, without text or logos, suitable for a publication that mixes historical analysis with modern news.`;
 
-    if (articleHeadline.toLowerCase().includes('president') || articleContent.toLowerCase().includes('president')) {
-      imagePrompt += ` The image should depict the president in the style of a political cartoon of King George III from the American Revolutionary era. He should have a yellow wig instead of a white one, be wearing a royal red coat, and be adorned with an excessive amount of gold.`
+    if (articleHeadline.toLowerCase().includes('trump') || articleContent.toLowerCase().includes('trump')) {
+      imagePrompt += ` It should depicting the president as a caricature of King George III from the American Revolutionary era. He should have a comical yellow wig, be wearing a royal red coat, and be adorned with an excessive amount of gold, all in a humorous, exaggerated style. But otherwise, he should resemble the current president. 
+      
+      ${current_facts}`
     }
 
     // 4. Generate an image for the article
