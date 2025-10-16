@@ -55,7 +55,8 @@ import Adsense from '../components/Adsense.astro';
     <meta name="twitter:image" content={ogImageUrl} />
 
     <title>{title}</title>
-    <Adsense />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6862199621986980"
+     crossorigin="anonymous"></script>
   </head>
   <body class="font-sans antialiased text-gray-900 bg-gray-50">
     <header class="bg-white shadow-sm py-3">
@@ -79,6 +80,7 @@ import Adsense from '../components/Adsense.astro';
     </header>
 
     <main class="container mx-auto px-2 py-2 md:px-4 md:py-4">
+      <Adsense />
       <slot />
     </main>
 
