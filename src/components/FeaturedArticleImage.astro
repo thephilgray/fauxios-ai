@@ -1,0 +1,71 @@
+---
+interface Props {
+  src: string | undefined | null;
+  alt: string;
+  class?: string;
+  [key: string]: any; // Allow other attributes
+}
+
+const { src, alt, class: className, ...attrs } = Astro.props;
+
+const uniqueId = `featured-article-image-${Math.random().toString(36).substring(2, 9)}`;
+---
+
+<div class="parallax-container h-96 overflow-hidden rounded-lg">
+  {src ? (
+    <img
+      id={uniqueId}
+      src={src}
+      alt={alt}
+      class={`parallax-image w-full h-auto object-cover ${className}`}
+      {...attrs}
+    />
+  ) : (
+    <img
+      src="/images/placeholder-image.svg"
+      alt={alt}
+      class={`w-full h-full object-contain ${className}`}
+      {...attrs}
+    />
+  )}
+</div>
+
+<script define:vars={{ uniqueId: uniqueId }}>
+  const img = document.getElementById(uniqueId);
+  const fallbackSrc = '/images/placeholder-image.svg';
+
+  if (img) {
+    const checkImage = () => {
+      if (!img.complete) return;
+
+      setTimeout(() => {
+        if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+          img.src = fallbackSrc;
+          img.classList.add('object-fill');
+          img.classList.remove('object-cover');
+        }
+      }, 50);
+    };
+
+    img.onerror = () => {
+      img.src = fallbackSrc;
+      img.classList.add('object-fill');
+      img.classList.remove('object-cover');
+    };
+
+    img.onload = checkImage;
+
+    if (img.complete) {
+      checkImage();
+    }
+  }
+
+  // Parallax effect
+  const parallaxImage = document.querySelector('.parallax-image');
+  if (parallaxImage) {
+    window.addEventListener('scroll', () => {
+      const scrollPosition = window.pageYOffset;
+      parallaxImage.style.transform = `translateY(${scrollPosition * 0.2}px)`;
+    });
+  }
+</script>
