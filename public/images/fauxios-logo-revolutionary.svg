@@ -1,0 +1,14 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="400" fill="#F8F4E3"/>
+<circle cx="200" cy="200" r="180" stroke="#1A202C" stroke-width="10"/>
+<path id="textPath" d="M 100, 200 a 100,100 0 1,1 200,0" fill="none"/>
+<text font-family="'Times New Roman', Times, serif" font-size="48" fill="#1A202C" text-anchor="middle">
+  <textPath href="#textPath" startOffset="50%">
+    FAUXIOS
+  </textPath>
+</text>
+<path d="M200 150 C 220 150 240 170 240 190 C 240 210 220 230 200 230 C 180 230 160 210 160 190 C 160 170 180 150 200 150 Z M 200 160 C 185 160 170 175 170 190 C 170 205 185 220 200 220 C 215 220 230 205 230 190 C 230 175 215 160 200 160 Z" fill="#1A202C"/>
+<path d="M200 230 C 200 250 180 270 160 270 C 140 270 130 250 140 230 C 150 210 170 210 180 230 C 190 250 200 250 200 230 Z" fill="#1A202C"/>
+<path d="M160 270 C 160 290 180 310 200 310 C 220 310 230 290 220 270 C 210 250 190 250 180 270 C 170 290 160 290 160 270 Z" fill="#1A202C"/>
+<path d="M200 150 L 205 140 L 215 155 L 210 145 L 220 160 L 200 150 Z" fill="#1A202C"/>
+</svg>

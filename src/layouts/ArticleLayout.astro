@@ -58,11 +58,12 @@ import Adsense from '../components/Adsense.astro';
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6862199621986980"
      crossorigin="anonymous"></script>
   </head>
-  <body class="font-sans antialiased text-gray-900 bg-gray-50">
+  <body class="font-sans antialiased text-gray-900 bg-gray-50 flex flex-col min-h-screen">
     <header class="bg-white shadow-sm py-3">
       <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-        <a href="/" class="flex items-center justify-center min-w-fit">
-          <img src="/images/fauxios-logo.svg" alt="Fauxios Logo" class="h-8 w-auto" />
+        <a href="/" class="flex items-center justify-center min-w-fit bg-black p-2 rounded">
+          <img src="/images/favicon-white.svg" alt="Fauxios Logo" class="h-8 w-auto mr-2" />
+          <span class="text-2xl font-semibold text-white">Fauxios</span>
         </a>
         <nav class="flex flex-wrap justify-center gap-4 mt-4 md:mt-0">
           <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
@@ -79,7 +80,7 @@ import Adsense from '../components/Adsense.astro';
       </div>
     </header>
 
-    <main class="container mx-auto px-2 py-2 md:px-4 md:py-4">
+    <main class="container mx-auto px-2 py-2 md:px-4 md:py-4 flex-grow">
       <Adsense />
       <slot />
     </main>
@@ -88,6 +89,11 @@ import Adsense from '../components/Adsense.astro';
       <div class="container mx-auto px-4 text-center">
         <p>&copy; {new Date().getFullYear()} Fauxios. All rights reserved.</p>
         <p class="text-sm text-gray-400 mt-2">Fauxios is a satirical news website. All articles are fictional and intended for entertainment purposes only.</p>
+        <div class="mt-4">
+          <a href="/about" class="text-sm text-gray-400 hover:text-white mx-2">About Us</a>
+          <span class="text-sm text-gray-400">|</span>
+          <a href="/contact" class="text-sm text-gray-400 hover:text-white mx-2">Contact Us</a>
+        </div>
       </div>
     </footer>
   </body>
