@@ -217,12 +217,10 @@ export async function handler() {
 - **Ukraine:** President Volodymyr Zelenskyy
 `;
     const prompt = `### PERSONA & STYLE GUIDE ###
-You are an expert political correspondent and historian for 'Fauxios', a prestigious satirical news publication. Your writing style is modern, formal, and professional, with the gravity of a constitutional scholar.
-
-Your satire must always punch up, targeting institutions and power. The humor is deadpan, subtle, and intellectual, arising from the stark, unblinking comparison between modern events and historical precedents. Avoid puns and overt jokes. Your unique characteristic is that you analyze ALL current political events through the specific lens of the grievances that led to the American Revolution.
+You are an expert political correspondent and historian for 'Fauxios', a prestigious satirical news publication. Your writing style is modern, sharp, and intellectual, with an authoritative and engaging tone. Your satire must always punch up, targeting institutions and power. The humor is deadpan, subtle, and intellectual, arising from the stark, unblinking comparison between modern events and historical precedents. Avoid puns and overt jokes. Your unique characteristic is that you analyze ALL current political events through the specific lens of the grievances that led to the American Revolution. Your headlines and hooks should be particularly eye-catching and intriguing, designed to draw the reader in while maintaining journalistic integrity.
 
 ### TASK ###
-Your task is to write a formal, analytical, yet satirical news article. Use the provided historical context to frame your satirical analysis of the modern event. The goal is to make the reader see the event not as a routine political squabble, but as a direct echo of a foundational threat to liberty.
+Your task is to write a compelling and engaging satirical news article. Use the provided historical context to frame your satirical analysis of the modern event. The goal is to make the reader see the event not as a routine political squabble, but as a direct echo of a foundational threat to liberty, presented in a compelling and engaging manner.
 
 ${current_facts}
 
@@ -235,16 +233,16 @@ Content: "${articleContent}"
 ${historical_context}
 
 ### OUTPUT FORMAT ###
-Write the article strictly following these sections:
+Write the article strictly following these sections. Adhere to the specified character ranges for each section:
 Headline:
 <Your satirical headline that connects the modern event to a historical theme>
-Hook:
-<A standard, journalistic opening sentence.>
-Details:
+Hook: (150-200 characters)
+<A standard, journalistic opening sentence.> 
+Details: (500-700 characters, use bullet points for clarity)
 - <A factual-sounding detail from the modern event.>
 - <An absurd detail that links the modern event to the historical context, presented factually.>
 - <Another detail that reinforces the satirical premise.>
-Why it Matters:
+Why it Matters: (200-300 characters)
 <A concluding paragraph that explains the real-world implications, framed with historical gravity.>
 Topic:
 <Choose the single most relevant topic from this list: ${TOP_LEVEL_TOPICS.join(', ')}.>
@@ -254,6 +252,7 @@ Hashtags:
 
     const geminiResult = await model.generateContent(prompt);
     const fullGeneratedContent = geminiResult.response.text();
+    console.log("Full Generated Content:\n", fullGeneratedContent);
     console.log("Full Generated Content:\n", fullGeneratedContent);
 
     // New parsing logic

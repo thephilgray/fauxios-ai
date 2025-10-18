@@ -25,6 +25,18 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "FacebookPageId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "FacebookUserAccessToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "FacebookUserId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "FauxiosGenerator": {
       "name": string
       "type": "sst.aws.Function"
