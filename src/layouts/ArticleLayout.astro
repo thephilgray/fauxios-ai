@@ -32,6 +32,8 @@ try {
   console.error("Error fetching topics:", error);
 }
 import Adsense from '../components/Adsense.astro';
+
+const adsenseEnabled = import.meta.env.PUBLIC_ADSENSE_ENABLED === 'true';
 ---
 
 <html lang="en">
@@ -55,8 +57,10 @@ import Adsense from '../components/Adsense.astro';
     <meta name="twitter:image" content={ogImageUrl} />
 
     <title>{title}</title>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6862199621986980"
-     crossorigin="anonymous"></script>
+    {adsenseEnabled && (
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6862199621986980"
+       crossorigin="anonymous"></script>
+    )}
   </head>
   <body class="font-sans antialiased text-gray-900 bg-gray-50 flex flex-col min-h-screen">
     <header class="bg-white shadow-sm py-3">

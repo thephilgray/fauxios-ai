@@ -3,6 +3,7 @@ import { Resource } from "sst";
 import ArticleLayout from '../layouts/ArticleLayout.astro';
 import ResponsiveImage from "../components/ResponsiveImage.astro";
 import FeaturedArticleImage from "../components/FeaturedArticleImage.astro";
+import Adsense from "../components/Adsense.astro";
 
 interface Article {
   articleId: string;
@@ -50,6 +51,7 @@ const featuredArticle = allArticles.length > 0 ? allArticles[0] : null;
 const otherLatestArticles = allArticles.slice(1, 5); // Get next 4 for sidebar/below featured
 const standardFeedArticles = allArticles.slice(5); // Remaining for the standard feed
 
+const adsenseEnabled = import.meta.env.PUBLIC_ADSENSE_ENABLED === 'true';
 ---
 
 <ArticleLayout title="Fauxios - News Not Tea" description="All the news that's fit to dump." ogImageUrl="/favicon.svg">
@@ -127,12 +129,11 @@ const standardFeedArticles = allArticles.slice(5); // Remaining for the standard
           </div>
         )}
         <!-- Ad Placeholder -->
-        <div class="mt-8 bg-gray-100 p-4 text-center text-gray-500 text-sm rounded-md border border-gray-200">
-          Advertisement
-          <div class="w-full h-32 bg-gray-200 flex items-center justify-center mt-2 text-gray-400">
-            300x250 Ad
+        {adsenseEnabled && (
+          <div class="mt-8 bg-gray-100 p-4 text-center text-gray-500 text-sm rounded-md border border-gray-200">
+            <Adsense />
           </div>
-        </div>
+        )}
       </section>
     </div>
 
@@ -172,12 +173,9 @@ const standardFeedArticles = allArticles.slice(5); // Remaining for the standard
                 <a href={`/articles/${article.articleId}`} class="w-full text-center inline-block bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition duration-300 text-sm font-semibold">Read the Full Story</a>
                 </div>
               </article>
-              {index === 0 && (
+              {index === 0 && adsenseEnabled && (
                 <div class="bg-gray-100 p-4 text-center text-gray-500 text-sm rounded-md border border-gray-200 flex items-center justify-center md:col-span-2 lg:col-span-1">
-                  Advertisement
-                  <div class="w-full h-48 bg-gray-200 flex items-center justify-center mt-2 text-gray-400">
-                    300x250 Ad
-                  </div>
+                  <Adsense />
                 </div>
               )}
             </>

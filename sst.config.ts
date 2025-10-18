@@ -131,6 +131,9 @@ export default $config({
         name: $app.stage === "dev" ? "fauxios.com" : `${$app.stage}.fauxios.com`,
         redirects: $app.stage === "dev" ? ["www.fauxios.com"] : [],
       },
+      environment: {
+        PUBLIC_ADSENSE_ENABLED: "false", // Set to "true" when AdSense is approved
+      },
     });
 
     return {
