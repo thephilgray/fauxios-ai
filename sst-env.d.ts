@@ -21,6 +21,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "FacebookPageAccessToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "FauxiosGenerator": {
       "name": string
       "type": "sst.aws.Function"

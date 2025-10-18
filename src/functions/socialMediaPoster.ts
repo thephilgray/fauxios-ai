@@ -2,6 +2,7 @@ import { DynamoDBClient, QueryCommand, UpdateItemCommand } from "@aws-sdk/client
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { Resource } from "sst";
 import { TwitterApi } from 'twitter-api-v2';
+import axios from 'axios';
 
 const ddbClient = new DynamoDBClient({});
 const s3Client = new S3Client({});
@@ -105,7 +106,39 @@ export async function handler(event: { articleId?: string }) {
 
     console.log(`Article "${articleToPost.title}" posted to Twitter.`);
 
-    // 3. Update the article's postedToSocial status in DynamoDB
+    // 3. Post the article to Facebook
+    const facebookPageAccessToken = Resource.FacebookPageAccessToken.value;
+    const facebookPageId = "me"; // Use 'me' as the page ID with the page access token
+
+    if (facebookPageAccessToken) {
+      try {
+        const facebookPostMessage = `📰 ${articleToPost.title}\n\nRead more: https://www.fauxios.com/articles/${articleToPost.articleId}${hashtagsString}`;
+        let facebookImageUrl = articleToPost.imageUrl; // Default to original image URL
+
+        if (articleToPost.imageVariations && articleToPost.imageVariations['social-square']) {
+          facebookImageUrl = articleToPost.imageVariations['social-square'];
+        }
+
+        const facebookPostData = {
+          message: facebookPostMessage,
+          url: facebookImageUrl, // Use 'url' for image posts
+          access_token: facebookPageAccessToken,
+        };
+
+        const facebookResponse = await axios.post(
+          `https://graph.facebook.com/v19.0/${facebookPageId}/photos`,
+          facebookPostData
+        );
+        console.log("Facebook post successful:", facebookResponse.data);
+        console.log(`Article "${articleToPost.title}" posted to Facebook.`);
+      } catch (facebookError) {
+        console.error("Error posting to Facebook:", facebookError);
+      }
+    } else {
+      console.log("Facebook Page Access Token not found. Skipping Facebook post.");
+    }
+
+    // 4. Update the article's postedToSocial status in DynamoDB
     const updateCommand = new UpdateItemCommand({
       TableName: articlesTableName,
       Key: { articleId: { S: articleToPost.articleId } },

@@ -57,10 +57,11 @@ export default $config({
     const twitterApiSecret = new sst.Secret("TwitterApiSecret");
     const twitterAccessToken = new sst.Secret("TwitterAccessToken");
     const twitterAccessTokenSecret = new sst.Secret("TwitterAccessTokenSecret");
+    const facebookPageAccessToken = new sst.Secret("FacebookPageAccessToken");
 
     const socialMediaPoster = new sst.aws.Function("SocialMediaPoster", {
       handler: "src/functions/socialMediaPoster.handler",
-      link: [articlesTable, twitterApiKey, twitterApiSecret, twitterAccessToken, twitterAccessTokenSecret, processedImagesBucket], // Grant access to the Articles table
+      link: [articlesTable, twitterApiKey, twitterApiSecret, twitterAccessToken, twitterAccessTokenSecret, facebookPageAccessToken, processedImagesBucket], // Grant access to the Articles table
     });
 
     const imageProcessor = new sst.aws.Function("ImageProcessor", {
