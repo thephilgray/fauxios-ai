@@ -9,6 +9,13 @@ const s3Client = new S3Client({});
 
 export async function handler(event: { articleId?: string }) {
   console.log("SocialMediaPoster handler started.");
+
+  // Only post to social media in the 'dev' stage (which is the production stage for this project)
+  if (process.env.STAGE !== 'dev') {
+    console.log(`Skipping social media post in stage: ${process.env.STAGE}`);
+    return;
+  }
+
   try {
     const articlesTableName = Resource.Articles.name;
     let articleToPost;

@@ -62,6 +62,9 @@ export default $config({
     const socialMediaPoster = new sst.aws.Function("SocialMediaPoster", {
       handler: "src/functions/socialMediaPoster.handler",
       link: [articlesTable, twitterApiKey, twitterApiSecret, twitterAccessToken, twitterAccessTokenSecret, facebookPageAccessToken, processedImagesBucket], // Grant access to the Articles table
+      environment: {
+        STAGE: $app.stage,
+      },
     });
 
     const imageProcessor = new sst.aws.Function("ImageProcessor", {
