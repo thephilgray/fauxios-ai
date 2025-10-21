@@ -21,10 +21,6 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
-    "FacebookPageAccessToken": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
     "FacebookPageId": {
       "type": "sst.sst.Secret"
       "value": string

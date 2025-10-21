@@ -233,20 +233,20 @@ Content: "${articleContent}"
 ${historical_context}
 
 ### OUTPUT FORMAT ###
-Write the article strictly following these sections. Adhere to the specified character ranges for each section:
-Headline:
+Write the article strictly following these sections. Adhere to the specified character ranges for each section. Do NOT include any extra formatting characters (like asterisks, bolding, or italics) within the content of each section, only plain text.
+Headline: (plain text)
 <Your satirical headline that connects the modern event to a historical theme>
-Hook: (150-200 characters)
+Hook: (150-200 characters, plain text)
 <A standard, journalistic opening sentence.> 
-Details: (500-700 characters, use bullet points for clarity)
+Details: (500-700 characters, use bullet points for clarity, but ensure bullet points are simple hyphens and not bolded or italicized, plain text)
 - <A factual-sounding detail from the modern event.>
 - <An absurd detail that links the modern event to the historical context, presented factually.>
 - <Another detail that reinforces the satirical premise.>
-Why it Matters: (200-300 characters)
+Why it Matters: (200-300 characters, plain text)
 <A concluding paragraph that explains the real-world implications, framed with historical gravity.>
-Topic:
+Topic: (plain text)
 <Choose the single most relevant topic from this list: ${TOP_LEVEL_TOPICS.join(', ')}.>
-Hashtags:
+Hashtags: (plain text)
 <hashtag1, hashtag2, hashtag3>
 `;
 
