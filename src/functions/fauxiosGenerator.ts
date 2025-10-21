@@ -247,7 +247,7 @@ Why it Matters: (400-600 characters, 2 paragraphs separated by \n\n, plain text.
 <A second paragraph that further elaborates on the long-term significance or potential consequences.>
 Topic: (plain text)
 <Choose the single most relevant topic from this list: ${TOP_LEVEL_TOPICS.join(', ')}.>
-Hashtags: (plain text)
+Hashtags: (plain words, comma-separated, no '#' prefix)
 <hashtag1, hashtag2, hashtag3>
 `;
 
@@ -282,7 +282,7 @@ Hashtags: (plain text)
     const articleWhyItMatters = parsedSections["Why it Matters"] || "";
     const articleTopic = parsedSections["Topic"] || "World"; // Default to 'World' if AI doesn't provide one
     const hashtagsString = parsedSections["Hashtags"] || "";
-    const articleHashtags = hashtagsString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    const articleHashtags = Array.from(new Set(hashtagsString.split(',').map(tag => tag.trim().replace(/^#/, '')).filter(tag => tag.length > 0)));
 
     console.log("Extracted Title:", articleTitle);
     console.log("Extracted Hook:", articleHook);
