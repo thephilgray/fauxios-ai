@@ -242,8 +242,9 @@ Details: (500-700 characters, use bullet points for clarity, but ensure bullet p
 - <A factual-sounding detail from the modern event.>
 - <An absurd detail that links the modern event to the historical context, presented factually.>
 - <Another detail that reinforces the satirical premise.>
-Why it Matters: (200-300 characters, plain text)
+Why it Matters: (400-600 characters, 2 paragraphs separated by \n\n, plain text. If appropriate, include a direct quote from the Relevant Historical Context.)
 <A concluding paragraph that explains the real-world implications, framed with historical gravity.>
+<A second paragraph that further elaborates on the long-term significance or potential consequences.>
 Topic: (plain text)
 <Choose the single most relevant topic from this list: ${TOP_LEVEL_TOPICS.join(', ')}.>
 Hashtags: (plain text)
