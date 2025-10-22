@@ -23,15 +23,18 @@
     "twitter-api-v2": "^1.27.0",
     "axios": "^1.7.2",
     "xml2js": "^0.6.2",
-    "@pinecone-database/pinecone": "latest"
+        "@pinecone-database/pinecone": "latest",
+    "@aws-sdk/client-sfn": "^3.616.0",
+    "sharp": "^0.33.4"
   },
   "devDependencies": {
     "@aws-sdk/client-lambda": "^3.883.0",
     "@types/aws-lambda": "^8.10.152",
+    "@types/sharp": "^0.32.0",
     "@types/xml2js": "^0.4.14",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
-    "sst": "latest",
+    "sst": "3.17.12",
     "tailwindcss": "^3.4.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
