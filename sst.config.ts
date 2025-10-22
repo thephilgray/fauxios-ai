@@ -45,10 +45,6 @@ export default $config({
       public: true, // Make images publicly accessible,
     });
 
-    const embeddingsBucket = new sst.aws.Bucket("Embeddings", {
-      public: false, // Embeddings don't need to be publicly accessible
-    });
-
     const processedImagesBucket = new sst.aws.Bucket("ProcessedImages", {
       public: true, // Make processed images publicly accessible
     });
@@ -95,6 +91,7 @@ export default $config({
 
     const geminiApiKey = new sst.Secret("GeminiApiKey");
     const newsdataApiKey = new sst.Secret("NewsdataApiKey");
+    const pineconeApiKey = new sst.Secret("PineconeApiKey");
 
     const fauxiosGeneratorFunction = new sst.aws.Function("FauxiosGenerator", {
       handler: "src/functions/fauxiosGenerator.handler",
@@ -104,7 +101,8 @@ export default $config({
         geminiApiKey,
         newsdataApiKey,
         imagesBucket,
-        embeddingsBucket, // Link the new embeddings bucket
+
+        pineconeApiKey,
       ],
       memory: "1024 MB", // Increase memory for large embeddings file
       timeout: "60 seconds", // Increase timeout for image generation

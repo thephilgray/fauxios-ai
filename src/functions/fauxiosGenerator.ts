@@ -1,100 +1,16 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
-import { GoogleGenerativeAI, TaskType } from "@google/generative-ai";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import fetch from "node-fetch";
 import { Resource } from "sst";
 import { Buffer } from 'buffer';
-import * as fs from "fs";
-import * as zlib from "zlib";
-import { Readable } from "stream"; // Import Readable from 'stream'
+import { findContext } from "./find-context";
 import { TOP_LEVEL_TOPICS } from "../constants";
-
-interface EmbeddingData {
-  source: string;
-  content: string;
-  embedding: number[];
-}
-
-const EMBEDDINGS_BUCKET_NAME = Resource.Embeddings.name;
-const EMBEDDINGS_FILE_KEY = "embeddings.json.gz"; // The key in the S3 bucket
-const LOCAL_COMPRESSED_EMBEDDINGS_FILE_PATH = `/tmp/${EMBEDDINGS_FILE_KEY}`;
-const LOCAL_DECOMPRESSED_EMBEDDINGS_FILE_PATH = `/tmp/embeddings.json`;
-
-let ALL_EMBEDDINGS: EmbeddingData[] = [];
 
 const ddbClient = new DynamoDBClient({});
 const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 const s3Client = new S3Client({});
-
-
-async function downloadEmbeddingsFromS3() {
-  console.log(`Downloading ${EMBEDDINGS_FILE_KEY} from S3 bucket ${EMBEDDINGS_BUCKET_NAME} to ${LOCAL_COMPRESSED_EMBEDDINGS_FILE_PATH}...`);
-  try {
-    const { Body } = await s3Client.send(new GetObjectCommand({
-      Bucket: EMBEDDINGS_BUCKET_NAME,
-      Key: EMBEDDINGS_FILE_KEY,
-    }));
-
-    if (Body) {
-      const webStream = Body.transformToWebStream();
-      const nodeStream = Readable.fromWeb(webStream as any); // Convert Web Stream to Node.js Stream
-      const outputStream = fs.createWriteStream(LOCAL_COMPRESSED_EMBEDDINGS_FILE_PATH);
-      await new Promise<void>((resolve, reject) => { // Explicitly type the Promise to resolve with void
-        nodeStream.pipe(outputStream)
-          .on('error', (err: Error) => reject(err)) // Wrap reject to pass the error
-          .on('close', () => resolve());    // Wrap resolve to call it with no arguments
-      });
-      console.log("Compressed embeddings file downloaded successfully.");
-
-      // Decompress the file
-      console.log(`Decompressing ${LOCAL_COMPRESSED_EMBEDDINGS_FILE_PATH} to ${LOCAL_DECOMPRESSED_EMBEDDINGS_FILE_PATH}...`);
-      const input = fs.createReadStream(LOCAL_COMPRESSED_EMBEDDINGS_FILE_PATH);
-      const output = fs.createWriteStream(LOCAL_DECOMPRESSED_EMBEDDINGS_FILE_PATH);
-      await new Promise<void>((resolve, reject) => { // Explicitly type the Promise to resolve with void
-        input.pipe(zlib.createGunzip())
-          .pipe(output)
-          .on('error', (err: Error) => reject(err)) // Wrap reject to pass the error
-          .on('close', () => resolve());    // Wrap resolve to call it with no arguments
-      });
-      console.log("Embeddings file decompressed successfully.");
-
-    } else {
-      throw new Error("S3 GetObjectCommand returned empty Body.");
-    }
-  } catch (error) {
-    console.error("Error downloading or decompressing embeddings from S3:", error);
-    throw error;
-  }
-}
-
-// Initialize embeddings once during cold start
-(async () => {
-  try {
-    await downloadEmbeddingsFromS3();
-    ALL_EMBEDDINGS = JSON.parse(fs.readFileSync(LOCAL_DECOMPRESSED_EMBEDDINGS_FILE_PATH, "utf8"));
-    console.log(`Loaded ${ALL_EMBEDDINGS.length} embeddings.`);
-  } catch (error) {
-    console.error("Failed to initialize ALL_EMBEDDINGS:\n", error); // Added newline for better readability
-    // Depending on your error handling strategy, you might want to re-throw or handle gracefully
-    throw error; // Re-throw to indicate a critical initialization failure
-  }
-})();
-
-function cosineSimilarity(vecA: number[], vecB: number[]): number {
-  let dotProduct = 0;
-  let magnitudeA = 0;
-  let magnitudeB = 0;
-  for (let i = 0; i < vecA.length; i++) {
-    dotProduct += vecA[i] * vecB[i];
-    magnitudeA += vecA[i] * vecA[i];
-    magnitudeB += vecB[i] * vecB[i];
-  }
-  magnitudeA = Math.sqrt(magnitudeA);
-  magnitudeB = Math.sqrt(magnitudeB);
-  if (magnitudeA === 0 || magnitudeB === 0) return 0;
-  return dotProduct / (magnitudeA * magnitudeB);
-}
 
 export async function handler() {
   console.log("FauxiosGenerator handler started.");
@@ -150,46 +66,29 @@ export async function handler() {
     const randomAuthor = authors[Math.floor(Math.random() * authors.length)];
     console.log("Selected Author:", randomAuthor.name);
 
-    // Initialize Google Generative AI for embedding and content generation
+    // Initialize Google Generative AI for content generation
     const geminiApiKey = Resource.GeminiApiKey.value;
     if (!geminiApiKey) {
       throw new Error("Gemini API Key is not available.");
     }
     const genAI = new GoogleGenerativeAI(geminiApiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-    const embeddingModel = genAI.getGenerativeModel({ model: "text-embedding-004" });
-
 
     const articleHeadline = selectedArticle.title;
     const articleContent = selectedArticle.content || selectedArticle.description || "";
 
-    // Generate embedding for the selected article's content
-    const articleEmbeddingResult = await embeddingModel.embedContent({
-      content: { parts: [{ text: articleContent }], role: "user" },
-      taskType: TaskType.RETRIEVAL_QUERY,
-    });
-    const articleEmbedding = articleEmbeddingResult.embedding.values;
+    // Find the most relevant historical context using Pinecone
+    console.log("Finding relevant historical context from Pinecone...");
+    const bestMatch = await findContext(articleContent);
 
-    // Perform vector search
-    const similarities = ALL_EMBEDDINGS.map((historicalSnippet) => ({
-      ...historicalSnippet,
-      similarity: cosineSimilarity(articleEmbedding, historicalSnippet.embedding),
-    }));
+    if (!bestMatch) {
+      throw new Error("Could not find any relevant historical context from Pinecone.");
+    }
 
-    // Sort by similarity and get top 5 relevant snippets
-    const relevantSnippets = similarities
-      .sort((a, b) => b.similarity - a.similarity)
-      .slice(0, 5);
+    console.log(`Found best match from: ${bestMatch.source}`);
 
-    console.log("Top 5 Relevant Historical Snippets:");
-    relevantSnippets.forEach((snippet) => {
-      console.log(`- Source: ${snippet.source}, Similarity: ${snippet.similarity.toFixed(4)}`);
-    });
-
-    // Step 1: Format the historical context from your vector search results
-    const historical_context = relevantSnippets
-      .map(snippet => `- From ${snippet.source}: "${snippet.content.trim()}"`) // Corrected escaping for quotes within template literal
-      .join('\n');
+    // Format the historical context for the prompt
+    const historical_context = `- From ${bestMatch.source}: "${bestMatch.text.trim()}"`;
 
     // Step 2: Construct the new, integrated prompt
 

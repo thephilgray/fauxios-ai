@@ -17,10 +17,6 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
-    "Embeddings": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
     "FacebookPageId": {
       "type": "sst.sst.Secret"
       "value": string
@@ -50,6 +46,10 @@ declare module "sst" {
       "type": "sst.aws.Bucket"
     }
     "NewsdataApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "PineconeApiKey": {
       "type": "sst.sst.Secret"
       "value": string
     }
