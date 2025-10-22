@@ -56,68 +56,92 @@ export default $config({
     const facebookUserId = new sst.Secret("FacebookUserId");
     const facebookUserAccessToken = new sst.Secret("FacebookUserAccessToken");
     const facebookPageId = new sst.Secret("FacebookPageId");
-
-    const socialMediaPoster = new sst.aws.Function("SocialMediaPoster", {
-      handler: "src/functions/socialMediaPoster.handler",
-      link: [articlesTable, twitterApiKey, twitterApiSecret, twitterAccessToken, twitterAccessTokenSecret, facebookUserId, facebookUserAccessToken, facebookPageId, processedImagesBucket], // Grant access to the Articles table
-      environment: {
-        STAGE: $app.stage,
-      },
-    });
-
-    const imageProcessor = new sst.aws.Function("ImageProcessor", {
-      handler: "src/functions/imageProcessor.handler",
-      link: [articlesTable, imagesBucket, processedImagesBucket, socialMediaPoster], // Link to Articles table, original Images bucket, and new Processed Images bucket
-      timeout: "60 seconds", // Image processing can be intensive
-      concurrency: {
-        reserved: 1, // Limit to 1 concurrent invocation
-      },
-      nodejs: { install: ["sharp", "@aws-sdk/client-lambda"] },
-      environment: {
-        PROCESSED_IMAGES_BUCKET_NAME: processedImagesBucket.name, // Pass bucket name as env var
-      },
-    });
-
-    imagesBucket.notify({
-      notifications: [
-        {
-          name: "processImageNotification", // Add a unique name for this notification
-          function: imageProcessor.arn,
-          events: ["s3:ObjectCreated:*"], // Trigger on all object creation events
-          filterPrefix: "articles/", // Only process images in the 'articles/' folder
-        },
-      ],
-    });
-
     const geminiApiKey = new sst.Secret("GeminiApiKey");
     const newsdataApiKey = new sst.Secret("NewsdataApiKey");
     const pineconeApiKey = new sst.Secret("PineconeApiKey");
 
-    const fauxiosGeneratorFunction = new sst.aws.Function("FauxiosGenerator", {
-      handler: "src/functions/fauxiosGenerator.handler",
-      link: [
-        articlesTable,
-        authorsTable,
-        geminiApiKey,
-        newsdataApiKey,
-        imagesBucket,
+    // New Step Function Workflow
+    const generateArticleContent = new sst.aws.Function("GenerateArticleContent", {
+      handler: "src/functions/generateArticleContent.handler",
+      link: [articlesTable, authorsTable, geminiApiKey, newsdataApiKey, pineconeApiKey],
+      timeout: "60 seconds",
+    });
 
-        pineconeApiKey,
-      ],
-      memory: "1024 MB", // Increase memory for large embeddings file
-      timeout: "60 seconds", // Increase timeout for image generation
-      concurrency: {
-        reserved: 1, // Limit to 1 concurrent invocation
+    const generateArticleImage = new sst.aws.Function("GenerateArticleImage", {
+      handler: "src/functions/generateArticleImage.handler",
+      link: [geminiApiKey, imagesBucket, processedImagesBucket],
+      nodejs: { install: ["sharp"] },
+      timeout: "60 seconds",
+    });
+
+    const assemblePost = new sst.aws.Function("AssemblePost", {
+      handler: "src/functions/assemblePost.handler",
+      link: [articlesTable],
+      timeout: "30 seconds",
+    });
+
+    const postToSocials = new sst.aws.Function("PostToSocials", {
+      handler: "src/functions/postToSocials.handler",
+      link: [articlesTable, twitterApiKey, twitterApiSecret, twitterAccessToken, twitterAccessTokenSecret, facebookUserId, facebookUserAccessToken, facebookPageId],
+      timeout: "30 seconds",
+    });
+
+    // Define states using SST's fluent API
+    const generateContentState = sst.aws.StepFunctions.lambdaInvoke({
+      name: "GenerateArticleContent",
+      function: generateArticleContent,
+      output: {
+        article: "{% $states.result.Payload %}",
       },
     });
 
+    const generateArticleImageState = sst.aws.StepFunctions.lambdaInvoke({
+      name: "GenerateArticleImage",
+      function: generateArticleImage,
+      payload: { article: "{% $states.input.article %}" },
+      output: {
+        article: "{% $states.input.article %}",
+        images: "{% $states.result.Payload %}",
+      },
+    });
+
+    const assemblePostState = sst.aws.StepFunctions.lambdaInvoke({
+      name: "AssemblePost",
+      function: assemblePost,
+      payload: {
+        articleData: "{% $states.input.article %}",
+        imageData: "{% $states.input.images %}",
+      },
+      output: {
+        assembledPost: "{% $states.result.Payload %}",
+      },
+    });
+
+    const postToSocialsState = sst.aws.StepFunctions.lambdaInvoke({
+      name: "PostToSocials",
+      function: postToSocials,
+      payload: { articleToPost: "{% $states.input.assembledPost %}" },
+    });
+
+    const definition = generateContentState
+      .next(generateArticleImageState)
+      .next(assemblePostState)
+      .next(postToSocialsState);
+
+    const stateMachine = new sst.aws.StepFunctions("FauxiosOrchestrator", {
+      definition: definition,
+    });
+
+    // New Cron job to trigger the Step Function via a lambda
     if ($app.stage !== "phillipgray") {
-      new sst.aws.Cron("FauxiosGeneratorCron", {
-        schedule: "rate(24 hours)",
-        job: fauxiosGeneratorFunction.arn, // Link to the ARN of the Function construct
+      new sst.aws.Cron("FauxiosOrchestratorCron", {
+        schedule: "rate(1 day)",
+        job: {
+          handler: "src/functions/orchestratorTrigger.handler",
+          link: [stateMachine],
+        },
       });
-    }    
-    
+    }
     const api = new sst.aws.ApiGatewayV2("Api"); // Changed to ApiGatewayV2
     api.route("GET /articles", {
       handler: "src/functions/articles.handler",

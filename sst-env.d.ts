@@ -13,6 +13,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "AssemblePost": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "Authors": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -29,15 +33,19 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "FauxiosGenerator": {
-      "name": string
-      "type": "sst.aws.Function"
+    "FauxiosOrchestrator": {
+      "arn": string
+      "type": "sst.aws.StepFunctions"
     }
     "GeminiApiKey": {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "ImageProcessor": {
+    "GenerateArticleContent": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "GenerateArticleImage": {
       "name": string
       "type": "sst.aws.Function"
     }
@@ -53,13 +61,13 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "PostToSocials": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "ProcessedImages": {
       "name": string
       "type": "sst.aws.Bucket"
-    }
-    "SocialMediaPoster": {
-      "name": string
-      "type": "sst.aws.Function"
     }
     "TwitterAccessToken": {
       "type": "sst.sst.Secret"
