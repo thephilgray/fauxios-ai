@@ -4,17 +4,11 @@ The Virginia Declaration of Rights was adopted by the House of Burgesses in June
 
 The “rights” listed in the first five sections might strike the contemporary reader as odd; it is important to remember, however, that among the most fundamental rights articulated by the revolutionary generation was the right of the people to choose their form of government. Note the articulation of the separation of powers doctrine. Sections six through fourteen cover familiar ground. Most of the civil rights and criminal procedures listed were part of the Americanized version of the “rights of Englishmen” tradition. Section fifteen reflects the traditional republican argument that free government could survive only if the people were virtuous. Because colonial America turned to religion to perform this important political function, there was a presumption that religion had an “established” status. In 1776, the Anglican Church was the established church of Virginia, and there is nothing in the Virginia Declaration of Rights that challenges this establishment. On the other hand, Madison incorporated into Section sixteen an argument for the free exercise of religion, claiming that “the duty which we owe to our CREATOR, and the manner of discharging it, can be directed only by reason and conviction, not by force or violence.” This assertion challenges the establishment of any particular sect, even for the purpose of inculcating the morality that Madison himself elsewhere argued was essential to republican government.
 
-The same Convention also framed and adopted the Virginia Constitution. The first, and longest, section anticipates 
-the Declaration of Independence
-: Twenty-one separate indictments are listed against King George. Section two provides the authorization for establishing a new foundation. Sections three through eight and ten through twelve pertain to the bicameral legislature; and most of the remaining sections focus on the election, appointment, or removal of executive and judicial officers. Section twenty-one lays the foundation for the 
-Northwest Ordinance
-, by ceding western lands disputed between Virginia and other states to the latter, and by anticipating the creation of new states in the western territory Virginia still held title to. (The ordinance, which laid the plan for settling the western territory and admitting sections of it as new states, would be passed by the Confederation Congress in 1787.)
+The same Convention also framed and adopted the Virginia Constitution. The first, and longest, section anticipates the Declaration of Independence : Twenty-one separate indictments are listed against King George. Section two provides the authorization for establishing a new foundation. Sections three through eight and ten through twelve pertain to the bicameral legislature; and most of the remaining sections focus on the election, appointment, or removal of executive and judicial officers. Section twenty-one lays the foundation for the Northwest Ordinance , by ceding western lands disputed between Virginia and other states to the latter, and by anticipating the creation of new states in the western territory Virginia still held title to. (The ordinance, which laid the plan for settling the western territory and admitting sections of it as new states, would be passed by the Confederation Congress in 1787.)
 
-The Arabic numerals identifying the separate sections of the Declaration of Rights are in the original. We have followed W. W. Hening, 
-Statutes at Large
- (Richmond: George Cochran, 1823 [IX: 109-119]) and added section numbers to the Virginia Constitution. These sections are identified by Roman numerals.
+The Arabic numerals identifying the separate sections of the Declaration of Rights are in the original. We have followed W. W. Hening, Statutes at Large (Richmond: George Cochran, 1823 [IX: 109-119]) and added section numbers to the Virginia Constitution. These sections are identified by Roman numerals.
 
- &#8212;Gordon Lloyd
+&#8212;Gordon Lloyd
 
 W. W. Hening, Statutes at Large (Richmond: George Cochran, 1823 [IX: 109-119]
 
@@ -34,13 +28,13 @@ That no man, or set of men, are entitled to exclusive or separate emoluments and
 
 2
 
- neither ought the offices of magistrate, legislator, or judge to be hereditary.
+neither ought the offices of magistrate, legislator, or judge to be hereditary.
 
 That the legislative and executive powers of the State should be separate and distinct from the judiciary; and that the members of the two first may be restrained from oppression, by feeling and participating the burthens
 
 3
 
- of the people, they should, at fixed periods, be reduced to a private station, return into that body from which they were originally taken, and the vacancies be supplied by frequent, certain, and regular elections, in which all, or any part of the former members, to be again eligible, or ineligible, as the laws shall direct.
+of the people, they should, at fixed periods, be reduced to a private station, return into that body from which they were originally taken, and the vacancies be supplied by frequent, certain, and regular elections, in which all, or any part of the former members, to be again eligible, or ineligible, as the laws shall direct.
 
 That elections of members to serve as representatives of the people, in assembly, ought to be free; and that all men, having sufficient evidence of permanent common interest with, and attachment to, the community, have the right of suffrage, and cannot be taxed or deprived of their property for public uses without their own consent, or that of their representative so elected, nor bound by any law to which they have not, in like manner, assented, for the public good.
 
@@ -50,7 +44,7 @@ That in all capital or criminal prosecutions a man hath a right to demand the ca
 
 4
 
- without whose unanimous consent he cannot be found guilty, nor can he be compelled to give evidence against himself; that no man be deprived of his liberty, except by the law of the land or the judgment of his peers.
+without whose unanimous consent he cannot be found guilty, nor can he be compelled to give evidence against himself; that no man be deprived of his liberty, except by the law of the land or the judgment of his peers.
 
 That excessive bail ought not to be required, nor excessive fines imposed, nor cruel and unusual punishments inflicted.
 
@@ -138,7 +132,7 @@ X. Either House of the General Assembly may adjourn themselves respectively. The
 
 [5]
 
- or adjourn the Assembly during their sitting, nor dissolve them at any time; but he shall, if necessary, either by advice of the Council of State, or on application of a majority of the House of Delegates, call them before the time to which they shall stand prorogued or adjourned.
+or adjourn the Assembly during their sitting, nor dissolve them at any time; but he shall, if necessary, either by advice of the Council of State, or on application of a majority of the House of Delegates, call them before the time to which they shall stand prorogued or adjourned.
 
 XI. A Privy Council, or Council of State, consisting of eight members, shall be chosen by joint ballot of both Houses of Assembly, either from their own members or the people at large, to assist in the administration of government. They shall annually choose out of their own members a president, who, in case of the death, inability, or necessary absence of the Governor from the government, shall act as Lieutenant Governor. Four members shall be sufficient to act, and their advice and proceedings shall be entered on record; and signed by the members present (to any part whereof any member may enter his dissent) to be laid before the General Assembly, when called for by them. This Council may appoint their own clerk, who shall have a salary settled by law, and take an oath of secrecy in such matters as he shall be directed by the board to conceal. A sum of money appropriated to that purpose shall be divided annually among the members, in proportion to their attendance; and they shall be incapable, during their continuance in office, of sitting in either House of Assembly. Two members shall be removed by joint ballot of both Houses of Assembly at the end of every three years, and be ineligible for the three next years. These vacancies, as well as those occasioned by death or incapacity, shall be supplied by new elections, in the same manner.
 
@@ -150,21 +144,15 @@ XIV. The two Houses of Assembly shall, by joint ballot, appoint Judges of the Su
 
 XV. The Governor, with the advice of the Privy Council, shall appoint Justices of the Peace for the counties; and in case of vacancies, or a necessity of increasing the number hereafter, such appointments to be made upon the recommendation of the respective county courts. The present acting Secretary in Virginia, and Clerks of all the County Courts, shall continue in office. In case of vacancies, either by death, incapacity, or resignation, a Secretary shall be appointed as before directed, and the Clerks by the respective courts. The present and future Clerks shall hold their offices during good behavior, to be judged of and determined in the General Court. The Sheriffs and Coroners shall be nominated by the respective courts, approved by the Governor, with the advice of the Privy Council, and commissioned by the Governor. The Justices shall appoint Constables, and all fees of the aforesaid officers be regulated by law.
 
-XVI. The Governor, when he is out of office, and others offending against the state, either by maladministration, corruption, or other means by which the safety of the state may be endangered, shall be impeachable by the House of Delegates. Such impeachment to be prosecuted by the Attorney-General, or such other person or persons as the House may appoint in the General Court, according to the laws of the land. If found guilty, he or they shall be either for ever disabled to hold any office under government, or removed from such Office 
-pro tempore
-,
+XVI. The Governor, when he is out of office, and others offending against the state, either by maladministration, corruption, or other means by which the safety of the state may be endangered, shall be impeachable by the House of Delegates. Such impeachment to be prosecuted by the Attorney-General, or such other person or persons as the House may appoint in the General Court, according to the laws of the land. If found guilty, he or they shall be either for ever disabled to hold any office under government, or removed from such Office pro tempore ,
 
 6
 
- or subjected to such pains or penalties as the laws shall direct.
+or subjected to such pains or penalties as the laws shall direct.
 
 XVII. If all, or any of the Judges of the General Court, shall, on good grounds (to be judged of by the House of Delegates) be accused of any of the crimes or offences before-mentioned, such House of Delegates may, in like manner, impeach the Judge or Judges so accused, to be prosecuted in the Court of Appeals; and he or they, if found guilty, shall be punished in the same manner as is prescribed in the preceding clause.
 
-XVIII. Commissions and grants shall run, 
-In the name of the COMMONWEALTH of VIRGINIA
-, and bear test by the Governor with the seal of the commonwealth annexed. Writs shall run in the same manner, and bear test by the clerks of the several courts. Indictments shall conclude, 
-Against the peace and dignity of the commonwealth
-.
+XVIII. Commissions and grants shall run, In the name of the COMMONWEALTH of VIRGINIA , and bear test by the Governor with the seal of the commonwealth annexed. Writs shall run in the same manner, and bear test by the clerks of the several courts. Indictments shall conclude, Against the peace and dignity of the commonwealth .
 
 XIX. A treasurer shall be appointed annually, by joint ballot of both Houses.
 
@@ -172,13 +160,13 @@ XX. All escheats,
 
 7
 
- penalties, and forfeitures, heretofore going to the king, shall go to the commonwealth, save only such as the legislature may abolish, or otherwise provide for.
+penalties, and forfeitures, heretofore going to the king, shall go to the commonwealth, save only such as the legislature may abolish, or otherwise provide for.
 
 XXI. The territories contained within the charters erecting the colonies of Maryland, Pennsylvania, North and South Carolina, are hereby ceded, released, and for ever confirmed to the people of those colonies respectively, with all the rights of property, jurisdiction, and government, and all other rights whatsoever which might at any time heretofore have been claimed by Virginia, except the free navigation and use of the rivers Potowmack
 
 8
 
- and Pohomoke
+and Pohomoke
 
 9
 
@@ -224,15 +212,13 @@ Potomac River
 
 Pocomoke River
 
-Prior 
-Document
+Prior Document
 
 Resolves for Independence
 
 June 07, 1776
 
-Next 
-Document
+Next Document
 
 Virginia Declaration of Rights and Constitution
 
