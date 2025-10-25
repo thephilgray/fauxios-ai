@@ -163,9 +163,109 @@ export default $config({
       },
     });
 
+    // Video Generation Service
+    const videoAssetsBucket = new sst.aws.Bucket("VideoAssets");
+
+    const runwayApiKey = new sst.Secret("RunwayApiKey");
+
+    // Lambdas for asset generation
+    const generateVoiceover = new sst.aws.Function("GenerateVoiceover", {
+      handler: "src/functions/generateVoiceover.handler",
+      link: [videoAssetsBucket],
+      permissions: [{ actions: ["polly:SynthesizeSpeech"], resources: ["*"] }],
+      timeout: "3 minutes",
+    });
+
+    const animateCartoon = new sst.aws.Function("AnimateCartoon", {
+      handler: "src/functions/animateCartoon.handler",
+      link: [videoAssetsBucket],
+      timeout: "3 minutes",
+      environment: {
+        RUNWAYML_API_SECRET: runwayApiKey.value
+      },
+    });
+
+        const generateAvatar = new sst.aws.Function("GenerateAvatar", {
+          handler: "src/functions/generateAvatar.handler",
+          link: [videoAssetsBucket],
+          environment: {
+            RUNWAYML_API_SECRET: runwayApiKey.value
+          },
+          timeout: "3 minutes",
+        });
+    
+        // New Lambda for orchestrating Remotion rendering
+        const renderVideo = new sst.aws.Function("RenderVideo", {
+          handler: "src/functions/renderVideo.handler", // Explicitly specify the handler function
+          link: [videoAssetsBucket],
+          timeout: "15 minutes", // Remotion rendering can take a while
+          memory: "2048 MB", // Adjust based on Remotion's needs
+          // Permissions to invoke the Remotion Lambda renderer
+          permissions: [
+            {
+              actions: ["lambda:InvokeFunction"],
+              resources: ["arn:aws:lambda:us-east-1:856562418824:function:remotion-render-4-0-365-mem2048mb-disk2048mb-120sec"],
+            },
+          ],
+        });
+        
+            const parallelState = sst.aws.StepFunctions.parallel({
+              name: "GenerateAssets",
+            })
+            .branch(
+                                  sst.aws.StepFunctions.lambdaInvoke({
+                                    name: "GenerateVoiceover",
+                                    function: generateVoiceover,
+                                    payload: {
+                                      headline: "{% $states.input.headline %}",
+                                      originalInput: "{% $states.input %}" // Pass the original input through
+                                    },
+                                  })            )
+            .branch(
+              sst.aws.StepFunctions.lambdaInvoke({
+                name: "AnimateCartoon",
+                function: animateCartoon,
+                payload: { cartoonImage: "{% $states.input.cartoonImage %}" },
+              })
+            )
+            .branch(
+              sst.aws.StepFunctions.lambdaInvoke({
+                name: "GenerateAvatar",
+                function: generateAvatar,
+                payload: {
+                  quote: "{% $states.input.quote %}",
+                  author: "{% $states.input.author %}",
+                },
+              })
+            );
+        
+            const transformState = sst.aws.StepFunctions.pass({
+              name: "PrepareFinalProps",
+              // 1. Extract all the data we need into a flatter object
+              output: "{% { 'original': $states.input[0].Payload.originalInput, 'voiceoverUrl': $states.input[0].Payload.voiceoverUrl, 'animatedCartoonUrl': $states.input[1].Payload.animatedCartoonUrl, 'avatarVideoUrl': $states.input[2].Payload.avatarVideoUrl } %}",
+            });
+        
+            // TODO: remotion involves manual setup with the remotion CLI and aws console
+            // not ideal for replicating in other projects
+            const renderState = sst.aws.StepFunctions.lambdaInvoke({
+              name: "RenderFinalVideo",
+              function: renderVideo, // Invoke the newly defined renderVideo function
+                        payload: {
+                          headline: "{% $states.input.original.headline %}",
+                          quote: "{% $states.input.original.quote %}",
+                          author: "{% $states.input.original.author %}",
+                          voiceoverUrl: "{% $states.input.voiceoverUrl %}",
+                          animatedCartoonUrl: "{% $states.input.animatedCartoonUrl %}",
+                          avatarVideoUrl: "{% $states.input.avatarVideoUrl %}",
+                        },            });
+    const videoOrchestrator = new sst.aws.StepFunctions("VideoOrchestrator", {
+      definition: parallelState.next(transformState).next(renderState)
+    });
+    
     return {
       url: site.url,
       apiUrl: api.url,
+      videoOrchestratorArn: videoOrchestrator.arn,
     };
   },
 });
