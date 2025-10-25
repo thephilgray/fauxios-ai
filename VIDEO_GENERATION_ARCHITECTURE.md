@@ -100,6 +100,13 @@ The last step is a Lambda function that assembles the final video by invoking th
 
 The video rendering process relies on two key pieces of AWS infrastructure that are deployed and managed via the Remotion CLI.
 
+> **Note:** For the Remotion CLI to access your AWS account, you must have your credentials defined in a `.env` file in the project root.
+> ```
+> REMOTION_AWS_SECRET_ACCESS_KEY=your_secret_key
+> REMOTION_AWS_ACCESS_KEY_ID=your_access_key_id
+> ```
+> For a complete guide on creating the necessary IAM user, roles, and permissions, refer to the official documentation: https://www.remotion.dev/docs/lambda/setup
+
 ### 1. The Remotion Player Site
 
 The Remotion Lambda renderer uses a headless Google Chrome instance to visit a web page and record the animation. This page, which contains your Remotion composition, must be deployed to a publicly accessible URL (usually an S3 bucket configured for static web hosting).
@@ -137,3 +144,18 @@ It calls `renderMediaOnLambda` with the following critical parameters:
 - `inputProps`: The data from our state machine (headline, asset URLs, etc.) that gets passed to the React components.
 
 This function call returns a `renderId`, which can be used to check the status of the render and retrieve the final video URL upon completion.
+
+---
+
+## Sample Execution Payload
+
+This is a sample JSON payload that can be used to manually trigger the Step Function for testing purposes.
+
+```json
+{
+  "headline": "ICE windfall from Trump megabill fuels surveillance juggernaut",
+  "cartoonImage": "https://en.wikipedia.org/wiki/James_Gillray#/media/File:Gillray_Temperance_051126.jpg",
+  "quote": "It is not by the consolidation, or concentration of powers, but by their distribution, that good government is effected.",
+  "author": "Thomas Jefferson"
+}
+```
