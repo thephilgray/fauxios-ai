@@ -5,6 +5,10 @@
 
 declare module "sst" {
   export interface Resource {
+    "AnimateCartoon": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "Api": {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
@@ -49,6 +53,14 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "GenerateAvatar": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "GenerateVoiceover": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "Images": {
       "name": string
       "type": "sst.aws.Bucket"
@@ -69,6 +81,14 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "RenderVideo": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "RunwayApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "TwitterAccessToken": {
       "type": "sst.sst.Secret"
       "value": string
@@ -84,6 +104,14 @@ declare module "sst" {
     "TwitterApiSecret": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "VideoAssets": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "VideoOrchestrator": {
+      "arn": string
+      "type": "sst.aws.StepFunctions"
     }
     "site": {
       "type": "sst.aws.Astro"
