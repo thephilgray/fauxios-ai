@@ -5,10 +5,6 @@
 
 declare module "sst" {
   export interface Resource {
-    "AnimateCartoon": {
-      "name": string
-      "type": "sst.aws.Function"
-    }
     "Api": {
       "type": "sst.aws.ApiGatewayV2"
       "url": string

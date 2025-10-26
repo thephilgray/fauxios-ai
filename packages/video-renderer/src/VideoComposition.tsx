@@ -1,12 +1,13 @@
 import { useRef, useEffect } from 'react';
-import { Composition, Sequence, Html5Video, Html5Audio, delayRender, continueRender, useVideoConfig } from 'remotion'; // Added imports
+import { Composition, Sequence, Html5Video, Html5Audio, delayRender, continueRender, useVideoConfig, Img, staticFile, useCurrentFrame, interpolate } from 'remotion';
 
 // Define the props structure that the Remotion Lambda will receive
 interface VideoProps {
   headline: string;
   voiceoverUrl: string;
-  animatedCartoonUrl: string;
+  cartoonImageUrl: string; // Changed from animatedCartoonUrl
   avatarVideoUrl: string;
+  avatarVideoDuration: number; // Added avatarVideoDuration
   quote: string;
   author: string;
 }
@@ -14,32 +15,6 @@ interface VideoProps {
 // Act 1: Simple text animation of the headline
 const Act1Event = ({ headline, voiceoverUrl }: { headline: string; voiceoverUrl: string }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const handle = delayRender();
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) {
-      return;
-    }
-
-    const onLoadedMetadata = () => {
-      continueRender(handle);
-    };
-
-    const onError = (e: Event) => {
-      console.error("Audio loading error:", e);
-      // Optionally, continue render even on error if you want to show a fallback
-      continueRender(handle);
-    };
-
-    audio.addEventListener("loadedmetadata", onLoadedMetadata);
-    audio.addEventListener("error", onError);
-
-    return () => {
-      audio.removeEventListener("loadedmetadata", onLoadedMetadata);
-      audio.removeEventListener("error", onError);
-    };
-  }, [handle, voiceoverUrl]);
 
   return (
     <div style={{ flex: 1, backgroundColor: 'black', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: 60, padding: 20, textAlign: 'center' }}>
@@ -49,70 +24,64 @@ const Act1Event = ({ headline, voiceoverUrl }: { headline: string; voiceoverUrl:
   );
 };
 
-// Act 2: Plays the animated cartoon video
-const Act2Reaction = ({ animatedCartoonUrl }: { animatedCartoonUrl: string }) => {
+// Act 2: Displays the static cartoon image with Ken Burns effect and overlaid headline
+const Act2Reaction = ({ cartoonImageUrl, headline }: { cartoonImageUrl: string; headline: string }) => {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+
+  // Animate a slow zoom-in from 100% scale to 110% scale
+  const scale = interpolate(frame, [0, durationInFrames - 1], [1, 1.1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // Animate a slow pan from left to right
+  const x = interpolate(frame, [0, durationInFrames - 1], [0, -50], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <div style={{ flex: 1, position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+      <Img
+        src={cartoonImageUrl}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          transform: `scale(${scale}) translateX(${x}px)`,
+        }}
+      />
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        color: 'white',
+        padding: '20px',
+        textAlign: 'center',
+        fontSize: '40px',
+        fontWeight: 'bold',
+        width: '80%',
+      }}>
+        {headline}
+      </div>
+    </div>
+  );
+};
+
+const VideoPlayer = ({ src }: { src: string }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const handle = delayRender();
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) {
-      return;
-    }
-
-    const onLoadedMetadata = () => {
-      continueRender(handle);
-    };
-
-    const onError = (e: Event) => {
-      console.error("Video loading error:", e);
-      continueRender(handle); // Continue render even on error to prevent hanging
-    };
-
-    video.addEventListener("loadedmetadata", onLoadedMetadata);
-    video.addEventListener("error", onError);
-
-    return () => {
-      video.removeEventListener("loadedmetadata", onLoadedMetadata);
-      video.removeEventListener("error", onError);
-    };
-  }, [handle, animatedCartoonUrl]);
-
-  return <Html5Video ref={videoRef} src={animatedCartoonUrl} style={{ width: '100%', height: '100%' }} />;
+  return <Html5Video ref={videoRef} src={src} style={{ width: '100%', height: '100%' }} />;
 };
 
 // Act 3: Plays the founding father avatar video and displays the quote
 const Act3Reflection = ({ avatarVideoUrl, quote, author }: { avatarVideoUrl: string; quote: string; author: string }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const handle = delayRender();
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) {
-      return;
-    }
-
-    const onLoadedMetadata = () => {
-      continueRender(handle);
-    };
-
-    const onError = (e: Event) => {
-      console.error("Video loading error:", e);
-      continueRender(handle); // Continue render even on error to prevent hanging
-    };
-
-    video.addEventListener("loadedmetadata", onLoadedMetadata);
-    video.addEventListener("error", onError);
-
-    return () => {
-      video.removeEventListener("loadedmetadata", onLoadedMetadata);
-      video.removeEventListener("error", onError);
-    };
-  }, [handle, avatarVideoUrl]);
-
   return (
     <div style={{ flex: 1, position: 'relative', width: '100%', height: '100%' }}>
-      <Html5Video ref={videoRef} src={avatarVideoUrl} style={{ width: '100%', height: '100%' }} />
+      <VideoPlayer src={avatarVideoUrl} />
       <div style={{
         position: 'absolute',
         bottom: '10%',
@@ -133,7 +102,7 @@ export const VideoComposition = () => {
   // Total duration can be adjusted based on the length of the generated assets
   const act1Duration = 150; // 5 seconds
   const act2Duration = 300; // 10 seconds
-  const act3Duration = 450; // 15 seconds
+  const act3Duration = 450; // Default to 15 seconds
   const totalDuration = act1Duration + act2Duration + act3Duration;
 
   return (
@@ -148,8 +117,9 @@ export const VideoComposition = () => {
       defaultProps={{
         headline: "Default Headline",
         voiceoverUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Placeholder MP3
-        animatedCartoonUrl: "https://www.remotion.dev/assets/example.mp4", // Placeholder MP4
+        cartoonImageUrl: "https://www.remotion.dev/assets/example.jpeg", // Placeholder JPG
         avatarVideoUrl: "https://www.remotion.dev/assets/example.mp4", // Placeholder MP4
+        avatarVideoDuration: 8, // Default to 8 seconds
         quote: "Default Quote",
         author: "Default Author",
       }}
@@ -157,20 +127,21 @@ export const VideoComposition = () => {
   );
 };
 
-const MainSequence = ({ headline, voiceoverUrl, animatedCartoonUrl, avatarVideoUrl, quote, author }: VideoProps) => {
+const MainSequence = ({ headline, voiceoverUrl, cartoonImageUrl, avatarVideoUrl, avatarVideoDuration, quote, author }: VideoProps) => {
+  const { fps } = useVideoConfig();
   const act1Duration = 150; // 5 seconds
   const act2Duration = 300; // 10 seconds
-  const act3Duration = 450; // 15 seconds
+  const act3Duration = Math.ceil(avatarVideoDuration * fps);
 
   return (
     <>
-      <Sequence from={0} durationInFrames={act1Duration}>
+      <Sequence from={0 as number} durationInFrames={act1Duration as number}>
         <Act1Event headline={headline} voiceoverUrl={voiceoverUrl} />
       </Sequence>
-      <Sequence from={act1Duration} durationInFrames={act2Duration}>
-        <Act2Reaction animatedCartoonUrl={animatedCartoonUrl} />
+      <Sequence from={act1Duration as number} durationInFrames={act2Duration as number}>
+        <Act2Reaction cartoonImageUrl={cartoonImageUrl} headline={headline} />
       </Sequence>
-      <Sequence from={act1Duration + act2Duration} durationInFrames={act3Duration}>
+      <Sequence from={(act1Duration + act2Duration) as number} durationInFrames={act3Duration as number}>
         <Act3Reflection avatarVideoUrl={avatarVideoUrl} quote={quote} author={author} />
       </Sequence>
     </>

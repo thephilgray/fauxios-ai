@@ -5,12 +5,13 @@ interface VideoProps { // Renamed RenderVideoEvent to VideoProps for clarity
   quote: string;
   author: string;
   voiceoverUrl: string;
-  animatedCartoonUrl: string;
+  cartoonImageUrl: string;
   avatarVideoUrl: string;
+  avatarVideoDuration: number;
 }
 
 export async function handler(event: VideoProps) { // Changed event type to VideoProps
-  const { headline, quote, author, voiceoverUrl, animatedCartoonUrl, avatarVideoUrl } = event; // Directly destructure event
+  const { headline, quote, author, voiceoverUrl, cartoonImageUrl, avatarVideoUrl, avatarVideoDuration } = event; // Directly destructure event
 
   // Input props for your Remotion composition
   const inputProps = {
@@ -18,8 +19,9 @@ export async function handler(event: VideoProps) { // Changed event type to Vide
     quote,
     author,
     voiceoverUrl,
-    animatedCartoonUrl,
+    cartoonImageUrl,
     avatarVideoUrl,
+    avatarVideoDuration,
   };
 
   // Invoke the Remotion Lambda renderer
