@@ -80,6 +80,7 @@ export async function handler(event: GenerateAvatarEvent) {
 
     return {
       avatarVideoUrl,
+      duration: 8, // Return the duration in seconds
     };
   } catch (error) {
     if (error instanceof TaskFailedError) {
