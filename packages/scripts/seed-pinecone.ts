@@ -19,6 +19,39 @@ const sourcesDir = path.resolve(process.cwd(), "sources");
 
 const MAX_CHUNK_SIZE = 4000; // Max characters per chunk
 
+const junkPatterns = [
+  "_JUST PUBLISHED_",
+  "[WARNING: This file was truncated. To view the full content, use the 'read_file' tool on this specific file.]"
+];
+
+function escapeRegExp(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+function cleanText(text: string): string {
+  let cleanedText = text;
+  for (const pattern of junkPatterns) {
+    cleanedText = cleanedText.replace(new RegExp(escapeRegExp(pattern), 'g'), '');
+  }
+
+  // Normalize all newlines to \n
+  cleanedText = cleanedText.replace(/\r\n/g, '\n');
+
+  // Replace all sequences of one or more newlines with double newlines
+  // This effectively treats any newline as a paragraph separator, then normalizes to double newlines
+  cleanedText = cleanedText.replace(/\n+/g, '\n\n');
+
+  // Split by double newlines (which are now consistent)
+  const paragraphs = cleanedText.split(/\n\n/);
+
+  const cleanedParagraphs = paragraphs.map(p => {
+    // Normalize whitespace within each paragraph
+    return p.replace(/\s+/g, ' ').trim();
+  });
+
+  return cleanedParagraphs.filter(p => p.length > 0).join('\n\n');
+}
+
 function chunkText(text: string): string[] {
   const paragraphs = text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   const chunks: string[] = [];
@@ -56,9 +89,10 @@ async function main() {
     console.log(`Processing source: ${file}...`);
     const sourceId = path.basename(file, ".txt");
     const filePath = path.join(sourcesDir, file);
-    const content = await fs.readFile(filePath, "utf-8");
+    const rawContent = await fs.readFile(filePath, "utf-8");
 
-    const chunks = chunkText(content);
+    const cleanedContent = cleanText(rawContent);
+    const chunks = chunkText(cleanedContent);
 
     console.log(`Found ${chunks.length} chunks in ${file}.`);
 

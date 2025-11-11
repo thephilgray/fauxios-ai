@@ -22,7 +22,7 @@ export async function handler() {
     if (!newsdataApiKey) {
       throw new Error("NewsdataApiKey is not available.");
     }
-    const newsdataUrl = `https://newsdata.io/api/1/news?apikey=${newsdataApiKey}&language=en&country=us&prioritydomain=top&domain=axios`;
+    const newsdataUrl = `https://newsdata.io/api/1/news?apikey=${newsdataApiKey}&language=en&country=us&prioritydomain=top&removeduplicate=1&domain=axios`;
     const response = await fetch(newsdataUrl);
     interface NewsdataResponse {
       results: any[];
@@ -50,7 +50,7 @@ export async function handler() {
     }
 
     // Shuffle the unused articles to get random ones
-    const shuffledArticles = unusedArticles.sort(() => 0.5 - Math.random());
+    const shuffledArticles = unusedArticles.filter(a => a.description?.length > 1000).sort(() => 0.5 - Math.random());
 
     // Select a single article for generation
     const selectedArticle = shuffledArticles[0];
@@ -75,11 +75,11 @@ export async function handler() {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const articleHeadline = selectedArticle.title;
-    const articleContent = selectedArticle.content || selectedArticle.description || "";
+    const articleDescription = selectedArticle.description || "";
 
     // Find the most relevant historical context using Pinecone
     console.log("Finding relevant historical context from Pinecone...");
-    const bestMatch = await findContext(articleContent);
+    const bestMatch = await findContext(`${articleHeadline}: ${articleDescription}`);
 
     if (!bestMatch) {
       throw new Error("Could not find any relevant historical context from Pinecone.");
@@ -104,14 +104,14 @@ export async function handler() {
 - **US Chief Justice of the Supreme Court:** John G. Roberts, Jr.
 
 **Select World Leaders:**
-- **Canada:** Prime Minister Justin Trudeau
-- **United Kingdom:** Prime Minister Rishi Sunak
+- **Canada:** Prime Minister Mark Carney
+- **United Kingdom:** Prime Minister Keir Starmer
 - **France:** President Emmanuel Macron
-- **Germany:** Federal Chancellor Olaf Scholz
+- **Germany:** Federal Chancellor Friedrich Merz
 - **Russia:** President Vladimir Putin
 - **China:** President Xi Jinping
 - **India:** Prime Minister Narendra Modi
-- **Japan:** Prime Minister Fumio Kishida
+- **Japan:** Prime Minister Sanae Takaichi
 - **Brazil:** President Luiz Inácio Lula da Silva
 - **Ukraine:** President Volodymyr Zelenskyy
 `;
@@ -126,7 +126,7 @@ ${current_facts}
 ### INPUTS ###
 **Modern News Event:**
 Headline: "${articleHeadline}"
-Content: "${articleContent}"
+Content: "${articleDescription}"
 
 **Relevant Historical Context:**
 ${historical_context}
@@ -193,9 +193,9 @@ Hashtags: (plain words, comma-separated, no '#' prefix)
     const articleId = `article-${Date.now()}`;
 
     // Step 3: Replace your old imagePrompt with this one
-    let imagePrompt = `A satirical political cartoon in the style of the American Revolutionary era, related to a satirical article with the headline: "${parsedSections["Headline"]}". The image should be absurdly humorous in a subtle way, without text or logos, suitable for a publication that mixes historical analysis with modern news.`;
+    let imagePrompt = `A satirical political cartoon in the style of the American Revolutionary era but colorful, related to a satirical article with the headline: "${parsedSections["Headline"]}". The image should be absurdly humorous in a subtle way, without text or logos, suitable for a publication that mixes historical analysis with modern news. It should attempt to imagine the real subject or subjects of the news within the dress and settings and conflicts of the past.`;
 
-    if (articleHeadline.toLowerCase().includes('trump') || articleContent.toLowerCase().includes('trump')) {
+    if (articleHeadline.toLowerCase().includes('trump') || articleDescription.toLowerCase().includes('trump')) {
       imagePrompt += ` It should depicting the president as a caricature of King George III from the American Revolutionary era. He should have a comical yellow wig, be wearing a royal red coat, and be adorned with an excessive amount of gold, all in a humorous, exaggerated style. But otherwise, he should resemble the current president. 
       
       ${current_facts}`
