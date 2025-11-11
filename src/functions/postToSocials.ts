@@ -10,13 +10,31 @@ const ddbClient = new DynamoDBClient({});
 const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 const s3Client = new S3Client({});
 
-export const handler: Handler = async (event) => {
+interface ArticleForSocials {
+  articleId: string;
+  title: string;
+  content: string;
+  hook: string;
+  hashtags: string[];
+  imageUrl: string;
+  imageVariations: {
+    [key: string]: string;
+  };
+}
+
+interface PostToSocialsEvent {
+  articleToPost: ArticleForSocials;
+}
+
+export const handler: Handler<PostToSocialsEvent> = async (event) => {
   console.log("--- PostToSocials handler invoked ---");
   console.log("Received payload:", JSON.stringify(event, null, 2));
 
-  const articleToPost = event.articleToPost;
+  const { articleToPost } = event;
 
   try {
+    const articleHook = articleToPost.hook;
+
     // 1. Post to Twitter/X
     const client = new TwitterApi({
       appKey: Resource.TwitterApiKey.value,
@@ -26,7 +44,7 @@ export const handler: Handler = async (event) => {
     });
 
     const hashtagsString = articleToPost.hashtags?.length > 0 ? `\n\n${articleToPost.hashtags.map((tag: string) => `#${tag}`).join(' ')}` : '';
-    const tweetText = `📰 ${articleToPost.title}\n\nRead more: https://www.fauxios.com/articles/${articleToPost.articleId}${hashtagsString}`;
+    const tweetText = `📰 ${articleToPost.title}\n\n${articleHook}${hashtagsString}`;
     
     let mediaId = undefined;
     if (articleToPost.imageVariations && articleToPost.imageVariations['social-square']) {
@@ -88,7 +106,7 @@ export const handler: Handler = async (event) => {
 
       if (facebookPageAccessToken) {
         try {
-          const facebookPostMessage = `📰 ${articleToPost.title}\n\nRead more: https://www.fauxios.com/articles/${articleToPost.articleId}${hashtagsString}`;
+          const facebookPostMessage = `📰 ${articleToPost.title}\n\n${articleToPost.content}${hashtagsString}`;
           const facebookPostData = {
             message: facebookPostMessage,
             url: articleToPost.imageUrl, // Use 'url' for image posts

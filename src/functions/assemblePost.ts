@@ -14,6 +14,7 @@ type AssemblePostEvent = {
     authorId: string;
     authorName: string;
     content: any;
+    hook: string;
     topic: string;
     hashtags: string[];
     createdAt: string;
@@ -49,7 +50,7 @@ export const handler: Handler<AssemblePostEvent> = async (event) => {
     await ddbDocClient.send(putCommand);
     console.log("Saved complete article to DynamoDB with ID:", finalPost.articleId);
 
-    return finalPost;
+    return { articleToPost: finalPost };
 
   } catch (error) {
     console.error("Error in AssemblePost handler:", error);
