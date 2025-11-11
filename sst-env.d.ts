@@ -21,31 +21,39 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
-    "Embeddings": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "FacebookPageAccessToken": {
+    "FacebookPageId": {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "FauxiosGenerator": {
-      "name": string
-      "type": "sst.aws.Function"
+    "FacebookUserAccessToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "FacebookUserId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "FauxiosOrchestrator": {
+      "arn": string
+      "type": "sst.aws.StepFunctions"
     }
     "GeminiApiKey": {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "GenerateArticleContent": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "GenerateArticleImage": {
       "name": string
       "type": "sst.aws.Function"
     }
-    "GenerateVoiceover": {
+    "GenerateAvatar": {
       "name": string
       "type": "sst.aws.Function"
     }
-    "ImageProcessor": {
+    "GenerateVoiceover": {
       "name": string
       "type": "sst.aws.Function"
     }
@@ -57,6 +65,14 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "PineconeApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "PostToSocials": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "ProcessedImages": {
       "name": string
       "type": "sst.aws.Bucket"
@@ -65,9 +81,9 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
-    "SocialMediaPoster": {
-      "name": string
-      "type": "sst.aws.Function"
+    "RunwayApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
     }
     "TwitterAccessToken": {
       "type": "sst.sst.Secret"
@@ -88,6 +104,10 @@ declare module "sst" {
     "VideoAssets": {
       "name": string
       "type": "sst.aws.Bucket"
+    }
+    "VideoOrchestrator": {
+      "arn": string
+      "type": "sst.aws.StepFunctions"
     }
     "site": {
       "type": "sst.aws.Astro"

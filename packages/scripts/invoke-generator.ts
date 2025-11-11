@@ -1,8 +1,8 @@
 import { Resource } from "sst";
-import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
+import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
 import { Buffer } from 'buffer';
 
-const lambdaClient = new LambdaClient({});
+const sfnClient = new SFNClient({});
 
 async function invokeGenerator() {
   const mockEvent = {
@@ -11,17 +11,15 @@ async function invokeGenerator() {
   };
 
   try {
-    console.log("Invoking fauxiosGenerator with mock event...");
-    const command = new InvokeCommand({
-      FunctionName: Resource.FauxiosGenerator.name,
-      Payload: JSON.stringify(mockEvent),
-      InvocationType: "RequestResponse", // Or "Event" for async invocation
+    console.log("Invoking FauxiosOrchestrator with mock event...");
+    const command = new StartExecutionCommand({
+      stateMachineArn: Resource.FauxiosOrchestrator.arn,
+      input: JSON.stringify(mockEvent),
     });
-    const { Payload } = await lambdaClient.send(command);
-    const result = Buffer.from(Payload as any).toString();
-    console.log("fauxiosGenerator invoked successfully. Result:", result);
+    const { executionArn } = await sfnClient.send(command);
+    console.log(`FauxiosOrchestrator started successfully. Execution ARN: ${executionArn}`);
   } catch (error) {
-    console.error("Error invoking fauxiosGenerator:", error);
+    console.error("Error starting FauxiosOrchestrator execution:", error);
   }
 }
 
