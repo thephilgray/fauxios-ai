@@ -102,6 +102,8 @@ Headline: (plain text)
 <Your satirical headline that connects the modern event to a historical theme>
 Hook: (150-200 characters, plain text)
 <A standard, journalistic opening sentence.> 
+Tweet: (around 100 characters, plain text)
+<A short, punchy tweet that summarizes the article's premise.>
 Details: (500-700 characters, use bullet points for clarity, but ensure bullet points are simple hyphens and not bolded or italicized, plain text)
 - <A factual-sounding detail from the modern event.>
 - <An absurd detail that links the modern event to the historical context, presented factually.> 
@@ -120,7 +122,7 @@ Hashtags: (plain words, comma-separated, no '#' prefix)
 
     // 5. Parse the generated content
     console.log("Parsing generated content...");
-    const sections = fullGeneratedContent.split(/(Headline|Hook|Details|Why it Matters|Topic|Hashtags)\s*:\s*\n*/);
+    const sections = fullGeneratedContent.split(/(Headline|Hook|Tweet|Details|Why it Matters|Topic|Hashtags)\s*:\s*\n*/);
     const parsedSections: { [key: string]: string } = {};
     for (let i = 1; i < sections.length; i += 2) {
       parsedSections[sections[i].trim()] = sections[i + 1] ? sections[i + 1].trim() : "";
@@ -128,12 +130,13 @@ Hashtags: (plain words, comma-separated, no '#' prefix)
 
     const articleTitle = parsedSections["Headline"];
     const articleHook = parsedSections["Hook"];
+    const articleTweet = parsedSections["Tweet"];
     let articleDetails = parsedSections["Details"];
     if (articleDetails) {
       articleDetails = articleDetails.split('\n').map(line => line.replace(/^-|\*\s*/, '').trim()).join('\n');
     }
 
-    if (!articleTitle || !articleHook || !articleDetails) {
+    if (!articleTitle || !articleHook || !articleDetails || !articleTweet) {
       throw new Error("Failed to generate all required article sections.");
     }
 
@@ -149,6 +152,8 @@ Hashtags: (plain words, comma-separated, no '#' prefix)
       headline: unusedArticle.title, // Original headline
       authorId: randomAuthor.authorId,
       authorName: randomAuthor.name,
+      hook: articleHook,
+      tweet: articleTweet,
       content: {
         hook: articleHook,
         details: articleDetails,

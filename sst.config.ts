@@ -82,7 +82,7 @@ export default $config({
 
     const postToSocials = new sst.aws.Function("PostToSocials", {
       handler: "src/functions/postToSocials.handler",
-      link: [articlesTable, twitterApiKey, twitterApiSecret, twitterAccessToken, twitterAccessTokenSecret, facebookUserId, facebookUserAccessToken, facebookPageId],
+      link: [articlesTable, processedImagesBucket, twitterApiKey, twitterApiSecret, twitterAccessToken, twitterAccessTokenSecret, facebookUserId, facebookUserAccessToken, facebookPageId],
       timeout: "30 seconds",
     });
 

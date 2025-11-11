@@ -13,8 +13,13 @@ const s3Client = new S3Client({});
 interface ArticleForSocials {
   articleId: string;
   title: string;
-  content: string;
+  content: {
+    hook: string;
+    details: string;
+    whyItMatters: string;
+  };
   hook: string;
+  tweet: string;
   hashtags: string[];
   imageUrl: string;
   imageVariations: {
@@ -44,12 +49,12 @@ export const handler: Handler<PostToSocialsEvent> = async (event) => {
     });
 
     const hashtagsString = articleToPost.hashtags?.length > 0 ? `\n\n${articleToPost.hashtags.map((tag: string) => `#${tag}`).join(' ')}` : '';
-    const tweetText = `📰 ${articleToPost.title}\n\n${articleHook}${hashtagsString}`;
+    const tweetText = `${articleToPost.tweet}${hashtagsString}`;
     
     let mediaId = undefined;
-    if (articleToPost.imageVariations && articleToPost.imageVariations['social-square']) {
+    if (articleToPost.imageVariations && articleToPost.imageVariations['social']) {
       try {
-        const imageUrlToDownload = articleToPost.imageVariations['social-square'];
+        const imageUrlToDownload = articleToPost.imageVariations['social'];
         const url = new URL(imageUrlToDownload);
         const imageKey = url.pathname.substring(1); // Remove leading slash
         const processedImagesBucketName = Resource.ProcessedImages.name;
@@ -73,9 +78,12 @@ export const handler: Handler<PostToSocialsEvent> = async (event) => {
       }
     }
 
-    await client.v2.tweet(tweetText, mediaId ? { media: { media_ids: [mediaId] } } : {});
-
-    console.log(`Article "${articleToPost.title}" posted to Twitter.`);
+    try {
+      await client.v2.tweet(tweetText, mediaId ? { media: { media_ids: [mediaId] } } : {});
+      console.log(`Article "${articleToPost.title}" posted to Twitter.`);
+    } catch (twitterError) {
+      console.error("Error posting to Twitter:", JSON.stringify(twitterError, null, 2));
+    }
 
     // Helper function to get Facebook Page Access Token
     async function getFacebookPageAccessToken(userId: string, userAccessToken: string, pageId: string): Promise<string | undefined> {
@@ -106,7 +114,7 @@ export const handler: Handler<PostToSocialsEvent> = async (event) => {
 
       if (facebookPageAccessToken) {
         try {
-          const facebookPostMessage = `📰 ${articleToPost.title}\n\n${articleToPost.content}${hashtagsString}`;
+          const facebookPostMessage = `📰 ${articleToPost.title}\n\n${articleToPost.hook}\n\n${articleToPost.content.details}\n\n${articleToPost.content.whyItMatters}${hashtagsString}`;
           const facebookPostData = {
             message: facebookPostMessage,
             url: articleToPost.imageUrl, // Use 'url' for image posts
