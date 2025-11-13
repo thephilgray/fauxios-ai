@@ -44,13 +44,14 @@ export const handler: Handler = async (event) => {
 
     // 3. Find relevant historical context from Pinecone
     const articleContent = unusedArticle.description || "";
-    console.log("Finding relevant historical context from Pinecone...");
-    const bestMatch = await findContext(articleContent);
-    if (!bestMatch) {
+    const queryText = `${unusedArticle.title} ${TOP_LEVEL_TOPICS[Math.floor(Math.random() * TOP_LEVEL_TOPICS.length)]}`;
+    console.log(`Finding relevant historical context from Pinecone with query: "${queryText}"...`);
+    const bestMatches = await findContext(queryText);
+    if (!bestMatches || bestMatches.length === 0) {
       throw new Error("Could not find any relevant historical context from Pinecone.");
     }
-    console.log(`Found best match from: ${bestMatch.source}`);
-    const historical_context = `- From ${bestMatch.source}: \"${bestMatch.text.trim()}\"`;
+    console.log(`Found ${bestMatches.length} matches from Pinecone for query: ${articleContent}`);
+    const historical_context = bestMatches.map(match => `- From ${match.source}: \"${match.text.trim()}\"`).join('\n');
 
     // 4. Generate the satirical article using Gemini
     console.log("Generating satirical article with Gemini...");

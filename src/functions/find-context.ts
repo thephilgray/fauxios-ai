@@ -22,7 +22,7 @@ const getGoogleAIClient = () => {
   return genAI;
 }
 
-export async function findContext(queryText: string): Promise<{ text: string; source: string } | null> {
+export async function findContext(queryText: string): Promise<{ text:string; source: string }[] | null> {
   const pinecone = getPineconeClient();
   const index = pinecone.index("founding-documents");
 
@@ -39,18 +39,19 @@ export async function findContext(queryText: string): Promise<{ text: string; so
   const queryVector = resultEmbedding.embedding.values;
 
   const result = await index.query({
-    topK: 1,
+    topK: 5,
     vector: queryVector,
     includeMetadata: true,
   });
 
   if (result.matches.length > 0) {
-    const bestMatch = result.matches[0];
-    const metadata = bestMatch.metadata as { raw_text: string; source: string };
-    return {
-      text: metadata.raw_text,
-      source: metadata.source,
-    };
+    return result.matches.map((match) => {
+      const metadata = match.metadata as { raw_text: string; source: string };
+      return {
+        text: metadata.raw_text,
+        source: metadata.source,
+      };
+    });
   }
 
   return null;
