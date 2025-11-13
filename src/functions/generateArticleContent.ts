@@ -43,7 +43,7 @@ export const handler: Handler = async (event) => {
     console.log("Selected Article:", unusedArticle.title);
 
     // 3. Find relevant historical context from Pinecone
-    const articleContent = unusedArticle.content || unusedArticle.description || "";
+    const articleContent = unusedArticle.description || "";
     console.log("Finding relevant historical context from Pinecone...");
     const bestMatch = await findContext(articleContent);
     if (!bestMatch) {
@@ -69,14 +69,14 @@ export const handler: Handler = async (event) => {
 - **US Chief Justice of the Supreme Court:** John G. Roberts, Jr.
 
 **Select World Leaders:**
-- **Canada:** Prime Minister Justin Trudeau
-- **United Kingdom:** Prime Minister Rishi Sunak
+- **Canada:** Prime Minister Mark Carney
+- **United Kingdom:** Prime Minister Keir Starmer
 - **France:** President Emmanuel Macron
-- **Germany:** Federal Chancellor Olaf Scholz
+- **Germany:** Federal Chancellor Friedrich Merz
 - **Russia:** President Vladimir Putin
 - **China:** President Xi Jinping
 - **India:** Prime Minister Narendra Modi
-- **Japan:** Prime Minister Fumio Kishida
+- **Japan:** Prime Minister Sanae Takaichi
 - **Brazil:** President Luiz Inácio Lula da Silva
 - **Ukraine:** President Volodymyr Zelenskyy
 `;

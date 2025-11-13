@@ -12,6 +12,10 @@ type GenerateArticleImageEvent = {
     articleId: string;
     title: string;
     headline: string;
+    authorId: string;
+    authorName: string;
+    content: any;
+    hook: string;
   };
 };
 
@@ -26,8 +30,8 @@ export const handler: Handler<GenerateArticleImageEvent> = async (event) => {
       model: "gemini-2.5-flash-image-preview",
     });
 
-    let imagePrompt = `A satirical political cartoon in the style of the American Revolutionary era, related to a satirical article with the headline: \"${article.title}\". The image should be absurdly humorous in a subtle way, without text or logos.`;
-    if (article.headline.toLowerCase().includes('trump')) {
+    let imagePrompt = `A satirical political cartoon in the style of the American Revolutionary era but colorful, related to a satirical article with the headline: \"${article.title}\". For more context, the article hook is: \"${article.hook}\". The image should be absurdly humorous in a subtle way, without text or logos. It should attempt to imagine the real subject or subjects of the news within the dress and settings and conflicts of the past.`;
+    if ([article.headline, article.hook, article.content].some(text => text.toLowerCase().includes('trump'))) {
       imagePrompt += ` It should depict the president as a caricature of King George III.`;
     }
 
