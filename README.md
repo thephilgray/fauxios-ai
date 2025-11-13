@@ -82,7 +82,7 @@ sst deploy --stage dev
 To run the Astro frontend locally for development:
 
 ```bash
-npm run dev
+sst dev
 ```
 
 This will start a local development server at `http://localhost:4321`.
