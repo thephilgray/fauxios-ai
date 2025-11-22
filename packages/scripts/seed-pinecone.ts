@@ -28,7 +28,7 @@ function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
-function cleanText(text: string): string {
+export function cleanText(text: string): string {
   let cleanedText = text;
   for (const pattern of junkPatterns) {
     cleanedText = cleanedText.replace(new RegExp(escapeRegExp(pattern), 'g'), '');
@@ -37,22 +37,20 @@ function cleanText(text: string): string {
   // Normalize all newlines to \n
   cleanedText = cleanedText.replace(/\r\n/g, '\n');
 
-  // Replace all sequences of one or more newlines with double newlines
-  // This effectively treats any newline as a paragraph separator, then normalizes to double newlines
-  cleanedText = cleanedText.replace(/\n+/g, '\n\n');
-
-  // Split by double newlines (which are now consistent)
-  const paragraphs = cleanedText.split(/\n\n/);
+  // Split text into paragraphs based on one or more empty lines
+  const paragraphs = cleanedText.split(/\n\s*\n/);
 
   const cleanedParagraphs = paragraphs.map(p => {
-    // Normalize whitespace within each paragraph
-    return p.replace(/\s+/g, ' ').trim();
+    // Replace single newlines within a paragraph with a space, effectively joining wrapped lines.
+    // Then normalize all whitespace to a single space and trim.
+    return p.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
   });
 
+  // Join the cleaned paragraphs back together with double newlines.
   return cleanedParagraphs.filter(p => p.length > 0).join('\n\n');
 }
 
-function chunkText(text: string): string[] {
+export function chunkText(text: string): string[] {
   const paragraphs = text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   const chunks: string[] = [];
 
@@ -79,15 +77,37 @@ function chunkText(text: string): string[] {
 }
 
 async function main() {
+  const args = process.argv.slice(2);
+  const specificFile = args[0];
+
   console.log(`Seeding index "${indexName}"...`);
 
-  const files = await fs.readdir(sourcesDir);
+  let filesToProcess: string[] = [];
 
-  for (const file of files) {
+  if (specificFile) {
+    // If a specific file is provided, use it
+    filesToProcess.push(specificFile);
+    console.log(`Processing specific file: ${specificFile}`);
+  } else {
+    // Otherwise, read all files from the sources directory
+    filesToProcess = await fs.readdir(sourcesDir);
+    console.log(`Processing all files in ${sourcesDir}`);
+  }
+
+  for (const file of filesToProcess) {
     if (path.extname(file) !== ".txt") continue;
 
     console.log(`Processing source: ${file}...`);
     const sourceId = path.basename(file, ".txt");
+    const sourceValue = sourceId.replace(/-/g, " ");
+
+    // Delete all existing vectors for this source to prevent orphans
+    console.log(`Deleting existing chunks for source: "${sourceValue}"...`);
+    await index.deleteMany({
+      source: { '$eq': sourceValue },
+    });
+    console.log(`Finished deleting existing chunks for "${sourceValue}".`);
+
     const filePath = path.join(sourcesDir, file);
     const rawContent = await fs.readFile(filePath, "utf-8");
 
