@@ -27,7 +27,7 @@ export const handler: Handler<GenerateArticleImageEvent> = async (event) => {
     const article = event.article;
     const genAI = new GoogleGenerativeAI(Resource.GeminiApiKey.value);
     const imageGenerationModel = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash-image-preview",
+      model: "gemini-2.5-flash-image",
     });
 
     let imagePrompt = `A satirical political cartoon in the style of the American Revolutionary era but colorful, related to a satirical article with the headline: \"${article.title}\". 
