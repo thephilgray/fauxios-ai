@@ -9,24 +9,16 @@ const { title, description, ogImageUrl } = Astro.props;
 import '../styles/global.css';
 import { Resource } from "sst";
 
-interface Article {
-  topic?: string;
-  createdAt: string;
-}
-
 const apiUrl = Resource.Api.url;
 let topics: string[] = [];
 
 try {
-  const response = await fetch(`${apiUrl}/articles`);
+  const response = await fetch(`${apiUrl}/topics`);
   if (response.ok) {
-    const allArticles: Article[] = await response.json();
-    // Sort articles by createdAt in descending order
-    allArticles.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    const recentTopics = [...new Set(allArticles.map(article => article.topic || "News").filter(Boolean) as string[])];
-    topics = recentTopics.slice(0, 4); // Get the first 4 unique topics
+    const allTopics: string[] = await response.json();
+    topics = allTopics.slice(0, 4); // Get the first 4 unique topics
   } else {
-    console.error(`Failed to fetch articles for topics: ${response.status} ${response.statusText}`);
+    console.error(`Failed to fetch topics: ${response.status} ${response.statusText}`);
   }
 } catch (error) {
   console.error("Error fetching topics:", error);

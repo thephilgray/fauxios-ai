@@ -14,6 +14,7 @@ export default $config({
         articleId: "string",
         createdAt: "string", // Add createdAt field for the GSI
         postedToSocial: "string", // Add postedToSocial field
+        topic: "string", // Add topic field for the GSI
       },
       primaryIndex: {
         hashKey: "articleId",
@@ -27,6 +28,11 @@ export default $config({
         "postedToSocial-index": { // New GSI for postedToSocial
           hashKey: "postedToSocial",
           rangeKey: "createdAt", // Sort by creation date for unposted articles
+          projection: "all",
+        },
+        "topic-index": { // New GSI for topic
+          hashKey: "topic",
+          rangeKey: "createdAt", // Sort by creation date for articles in a topic
           projection: "all",
         },
       },
@@ -149,6 +155,14 @@ export default $config({
     });
     api.route("GET /articles/{articleId}", {
       handler: "src/functions/articles.handler",
+      link: [articlesTable],
+    });
+    api.route("GET /topics", {
+      handler: "src/functions/topics.handler",
+      link: [articlesTable],
+    });
+    api.route("GET /articles/topic/{topic}", {
+      handler: "src/functions/articlesByTopic.handler",
       link: [articlesTable],
     });
 

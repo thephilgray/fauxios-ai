@@ -6,7 +6,15 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "reindex-articles": "node packages/scripts/reindex-articles.ts",
+    "scan-topics": "node packages/scripts/scan-topics.ts",
+    "clear-articles-by-date": "node packages/scripts/clear-articles-by-date.ts",
+    "invoke-generator": "node packages/scripts/invoke-generator.ts",
+    "normalize-sources": "node packages/scripts/normalize-sources.ts",
+    "seed-authors": "node packages/scripts/seed-authors.ts",
+    "seed-pinecone": "node packages/scripts/seed-pinecone.ts",
+    "setup-index": "node packages/scripts/setup-index.ts"
   },
   "dependencies": {
     "@astrojs/tailwind": "^6.0.2",

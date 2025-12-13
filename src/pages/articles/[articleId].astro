@@ -17,19 +17,8 @@ interface Article {
     whyItMatters: string;
   };
   imageUrl?: string; // Added imageUrl (optional as it might not exist for older articles)
-  imageVariations?: { [key: string]: string }; // Added imageVariations
+  imageVariations?: { [key:string]: string }; // Added imageVariations
   topic?: string;
-}
-
-export async function getStaticPaths() {
-  const apiUrl = Resource.Api.url;
-  const response = await fetch(`${apiUrl}/articles`);
-  const articles: Article[] = await response.json(); // Explicitly type articles
-
-  return articles.map((article) => ({
-    params: { articleId: article.articleId },
-    props: { article },
-  }));
 }
 
 const { articleId } = Astro.params;
@@ -47,16 +36,14 @@ const ogImageUrl = (article?.imageVariations?.["social-wide"] ? new URL(article.
                    (article?.imageUrl ? new URL(article.imageUrl, Astro.url.origin).href : null) ||
                    new URL("/images/fauxios-logo.svg", Astro.url.origin).href; // Using fauxios-logo.svg as a more reliable fallback
 
-// Fetch all articles for the sidebar
-const allArticlesResponse = await fetch(`${apiUrl}/articles`);
-const allArticles: Article[] = allArticlesResponse.ok ? await allArticlesResponse.json() : [];
+// Fetch a few articles for the sidebar
+const articlesResponse = await fetch(`${apiUrl}/articles?limit=4`);
+const { articles: latestArticles } = articlesResponse.ok ? await articlesResponse.json() : { articles: [] };
 
 // Filter out the current article and take the first 3
-const relatedArticles = allArticles
+const relatedArticles = latestArticles
   .filter(a => a.articleId !== article.articleId)
   .slice(0, 3);
-
-
 ---
 
 <ArticleLayout title={title} description={description} ogImageUrl={ogImageUrl}>

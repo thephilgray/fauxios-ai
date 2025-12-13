@@ -97,6 +97,27 @@ sst shell --stage dev -- node packages/scripts/invoke-generator.ts
 
 This command runs the `invoke-generator.ts` script, which starts an execution of the `FauxiosOrchestrator` Step Function.
 
+### Scripts
+
+This project includes scripts for data maintenance, diagnostics, and seeding. These scripts should be run within the SST shell to provide them with the necessary AWS context.
+
+To run a script, use the following command structure, replacing `<stage-name>` with the target stage (e.g., `dev`, `develop`) and `<script-name>` with the name of the script you want to run.
+
+```bash
+sst shell --stage <stage-name> -- npm run <script-name>
+```
+
+#### Available Scripts
+
+-   **`invoke-generator`**: Manually triggers the article generation workflow.
+-   **`clear-articles-by-date`**: Removes articles from the database based on their creation date.
+-   **`normalize-sources`**: Normalizes the source text files used for content generation.
+-   **`reindex-articles`**: Updates each article to ensure it is included in all GSIs. This is essential after creating a new GSI or if you suspect an index is out of sync.
+-   **`scan-topics`**: A diagnostic script to inspect the `topic` attribute of all articles in the database.
+-   **`seed-authors`**: Seeds the database with an initial set of authors.
+-   **`seed-pinecone`**: Seeds the Pinecone index with vectors from the source documents.
+-   **`setup-index`**: Sets up the initial Pinecone index.
+
 ## Key Technologies
 
 -   **Frontend**: [Astro](https://astro.build/)
