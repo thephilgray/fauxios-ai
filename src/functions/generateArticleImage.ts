@@ -35,15 +35,15 @@ export const handler: Handler<GenerateArticleImageEvent> = async (event) => {
     The image should be absurdly humorous in a subtle way, without text or logos. 
     It should attempt to imagine the real subject or subjects of the news within the dress and settings and conflicts of the past.`;
     if ([article.headline, article.hook, article.title].some(text => text?.toLowerCase()?.includes('trump'))) {
-      imagePrompt += ` It should depict the president as a caricature of King George III.`;
+      imagePrompt += ` It should depict the subject as a caricature of King George III.`;
     }
-
+    
     console.log("Generating image with prompt:", imagePrompt);
     const imageGenerationResult = await imageGenerationModel.generateContent(imagePrompt);
 
     const imagePart = imageGenerationResult.response.candidates?.[0]?.content?.parts?.[1];
     if (!imagePart?.inlineData) {
-      throw new Error("Image generation failed or returned unexpected format.");
+            throw new Error("Image generation failed or returned unexpected format.");
     }
 
     const originalImageData = imagePart.inlineData.data;
