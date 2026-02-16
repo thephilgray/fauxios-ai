@@ -21,7 +21,7 @@ async function main() {
   console.log(`Creating index "${indexName}" for model "${model}"...`);
   await pinecone.createIndex({
     name: indexName,
-    dimension: 768, // From the text-embedding-004 model
+    dimension: 768, // From the gemini-embedding-001 model
     metric: 'cosine',
     spec: {
       serverless: {

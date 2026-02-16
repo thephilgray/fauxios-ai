@@ -13,7 +13,7 @@ const index = pinecone.index(indexName);
 
 // Initialize Google Generative AI
 const genAI = new GoogleGenerativeAI(Resource.GeminiApiKey.value);
-const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
 
 const sourcesDir = path.resolve(process.cwd(), "sources");
 

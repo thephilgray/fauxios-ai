@@ -27,7 +27,7 @@ export async function findContext(queryText: string): Promise<{ text:string; sou
   const index = pinecone.index("founding-documents");
 
   const genAI = getGoogleAIClient();
-  const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+  const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
 
   // Generate embedding for the query text
   const resultEmbedding = await model.embedContent(
