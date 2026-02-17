@@ -73,25 +73,31 @@ export function chunkText(text: string): string[] {
       }
     }
   }
-  return chunks;
+  return chunks.filter(c => c && c.trim());
 }
 
 async function main() {
   const args = process.argv.slice(2);
-  const specificFile = args[0];
+  const startFile = args[0];
 
   console.log(`Seeding index "${indexName}"...`);
 
-  let filesToProcess: string[] = [];
+  let allFiles = await fs.readdir(sourcesDir);
+  allFiles.sort(); // Ensure alphabetical order for resuming
 
-  if (specificFile) {
-    // If a specific file is provided, use it
-    filesToProcess.push(specificFile);
-    console.log(`Processing specific file: ${specificFile}`);
+  let filesToProcess: string[] = allFiles;
+
+  if (startFile) {
+    const startIndex = allFiles.indexOf(startFile);
+    if (startIndex > -1) {
+      console.log(`Resuming process from file: ${startFile}`);
+      filesToProcess = allFiles.slice(startIndex);
+    } else {
+      console.error(`Error: Start file "${startFile}" not found in sources directory.`);
+      process.exit(1);
+    }
   } else {
-    // Otherwise, read all files from the sources directory
-    filesToProcess = await fs.readdir(sourcesDir);
-    console.log(`Processing all files in ${sourcesDir}`);
+    console.log(`Processing all ${filesToProcess.length} files in ${sourcesDir}`);
   }
 
   for (const file of filesToProcess) {
@@ -101,12 +107,16 @@ async function main() {
     const sourceId = path.basename(file, ".txt");
     const sourceValue = sourceId.replace(/-/g, " ");
 
-    // Delete all existing vectors for this source to prevent orphans
-    console.log(`Deleting existing chunks for source: "${sourceValue}"...`);
-    await index.deleteMany({
-      source: { '$eq': sourceValue },
-    });
-    console.log(`Finished deleting existing chunks for "${sourceValue}".`);
+    try {
+      // Delete all existing vectors for this source to prevent orphans
+      console.log(`Deleting existing chunks for source: "${sourceValue}"...`);
+      await index.deleteMany({
+        filter: { source: { '$eq': sourceValue } },
+      });
+      console.log(`Finished deleting existing chunks for "${sourceValue}".`);
+    } catch (e) {
+      console.warn(`Could not delete existing chunks for "${sourceValue}". This is expected if this is the first time seeding.`);
+    }
 
     const filePath = path.join(sourcesDir, file);
     const rawContent = await fs.readFile(filePath, "utf-8");
@@ -125,6 +135,7 @@ async function main() {
         {
           content: { parts: [{ text: chunk }], role: "user" },
           taskType: TaskType.RETRIEVAL_DOCUMENT,
+          outputDimensionality: 768,
         },
       );
       const embedding = result.embedding.values;
