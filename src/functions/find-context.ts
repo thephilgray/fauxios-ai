@@ -35,7 +35,7 @@ export async function findContext(queryText: string): Promise<{ text:string; sou
       content: { parts: [{ text: queryText }], role: "user" },
       taskType: TaskType.RETRIEVAL_QUERY,
       outputDimensionality: 768,
-    },
+    } as any,
   );
   const queryVector = resultEmbedding.embedding.values;
 
