@@ -29,7 +29,12 @@ export async function getStaticPaths() {
 }
 
 const { topic: encodedTopic } = Astro.params;
-const topic = decodeURIComponent(encodedTopic || '');
+let topic = '';
+try {
+  topic = decodeURIComponent(encodedTopic || '');
+} catch (e) {
+  topic = encodedTopic || '';
+}
 const apiUrl = Resource.Api.url;
 let initialArticles: Article[] = [];
 let lastEvaluatedKey: any = null;

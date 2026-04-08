@@ -52,10 +52,11 @@ export const handler: Handler<PostToSocialsEvent> = async (event) => {
     const tweetText = `${articleToPost.tweet}${hashtagsString}`;
     
     let mediaId = undefined;
-    if (articleToPost.imageVariations && articleToPost.imageVariations['social']) {
+    const socialImage = articleToPost.imageVariations?.['social-square'] || articleToPost.imageUrl;
+    
+    if (socialImage) {
       try {
-        const imageUrlToDownload = articleToPost.imageVariations['social'];
-        const url = new URL(imageUrlToDownload);
+        const url = new URL(socialImage);
         const imageKey = url.pathname.substring(1); // Remove leading slash
         const processedImagesBucketName = Resource.ProcessedImages.name;
 
@@ -64,17 +65,17 @@ export const handler: Handler<PostToSocialsEvent> = async (event) => {
           Key: imageKey,
         });
         const response = await s3Client.send(getObjectCommand);
-        if (!response.Body) {
-          console.error("No body found for the S3 object.");
-          return; // Return from the function if no body
-        }
-        const imageBuffer = await response.Body.transformToByteArray();
+        if (response.Body) {
+          const imageBuffer = await response.Body.transformToByteArray();
 
-        // Upload image to Twitter
-        mediaId = await client.v1.uploadMedia(Buffer.from(imageBuffer), { mimeType: 'image/png' });
-        console.log("Image uploaded to Twitter with mediaId:", mediaId);
-      } catch (imageError) {
-        console.error("Error uploading image to Twitter:", imageError);
+          // Upload image to Twitter
+          mediaId = await client.v1.uploadMedia(Buffer.from(imageBuffer), { mimeType: 'image/png' });
+          console.log("Image uploaded to Twitter with mediaId:", mediaId);
+        } else {
+          console.error("No body found for the S3 object.");
+        }
+      } catch (imageError: any) {
+        console.warn("Skipped or error uploading image to Twitter:", imageError.message || imageError);
       }
     }
 
