@@ -74,8 +74,10 @@ For more details, see the [Video Generation Architecture](./VIDEO_GENERATION_ARC
 To deploy the entire stack (including the Astro site, APIs, and all serverless functions) to your AWS account, run:
 
 ```bash
-sst deploy --stage dev
+npx sst deploy --stage dev
 ```
+
+> **Troubleshooting:** If you receive a `flag provided but not defined: -root` error related to Pulumi during deployment on macOS with Homebrew, it means SST's internal Pulumi engine is conflicting with a global Pulumi installation. To fix this, run `brew unlink pulumi` before your SST deploy command, and `brew link pulumi` afterward when you need your global Pulumi again.
 
 ### Local Development
 
