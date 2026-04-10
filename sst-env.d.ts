@@ -61,6 +61,14 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "GenerateMillerRevolutionImage": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "GenerateTruthVsFoundingData": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "GenerateTruthVsVerse": {
       "name": string
       "type": "sst.aws.Function"
@@ -85,6 +93,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "PostRevolutionReelToFacebook": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "PostToSocials": {
       "name": string
       "type": "sst.aws.Function"
@@ -101,6 +113,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "RenderRevolutionReel": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "RenderTruthReel": {
       "name": string
       "type": "sst.aws.Function"
@@ -108,6 +124,10 @@ declare module "sst" {
     "RenderVideo": {
       "name": string
       "type": "sst.aws.Function"
+    }
+    "RevolutionReelOrchestrator": {
+      "arn": string
+      "type": "sst.aws.StepFunctions"
     }
     "RunwayApiKey": {
       "type": "sst.sst.Secret"

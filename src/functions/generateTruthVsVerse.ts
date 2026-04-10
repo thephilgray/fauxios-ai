@@ -46,7 +46,10 @@ export const handler: Handler = async () => {
     
     // Sort by popularity based on favorites count, descending
     const sortedData = data.sort((a, b) => (b.favourites_count || 0) - (a.favourites_count || 0));
-    const mostPopularPost = sortedData[0];
+    // Pick randomly from the top 3 most popular recent posts to mix it up
+    const topCandidates = sortedData.slice(0, Math.min(3, sortedData.length));
+    const randomIdx = Math.floor(Math.random() * topCandidates.length);
+    const mostPopularPost = topCandidates[randomIdx];
 
     // Clean HTML tags from content
     const rawHtml = mostPopularPost.content || "";
@@ -67,8 +70,12 @@ export const handler: Handler = async () => {
 "${truthText}"
 
 Find a Bible scripture that starkly REFUTES, CONTRADICTS, or exposes the hypocrisy of his statement. The verse must directly argue against the underlying spirit or message of his quote to provide a sharp, critical juxtaposition.
+
+Also, if the original Truth Social post is very long, extract the single most impactful, absurd, or relevant sentence/excerpt from it (if it's already short, just return the whole thing).
+
 Return ONLY a valid JSON object in this exact structure with no markdown framing, tick marks or extra text:
 {
+  "truth_excerpt": "<the impactful excerpt from his post>",
   "scripture": "<the text of the bible verse>",
   "reference": "<the book, chapter, and verse>"
 }
@@ -87,6 +94,9 @@ Return ONLY a valid JSON object in this exact structure with no markdown framing
     }
     
     console.log("Got scripture:", parsedJson.reference);
+    
+    // Use the excerpted truth text from now on
+    const extractedTruthText = parsedJson.truth_excerpt || truthText;
 
     // 3. Fetch Fonts
     console.log("Fetching font dependencies...");
@@ -147,7 +157,7 @@ Return ONLY a valid JSON object in this exact structure with no markdown framing
                         fontFamily: 'Inter',
                         display: 'flex',
                       },
-                      children: truthText,
+                      children: extractedTruthText,
                     }
                   }
                 ]

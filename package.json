@@ -14,6 +14,7 @@
     "invoke-generator": "node packages/scripts/invoke-generator.ts",
     "invoke-truth-verses": "node packages/scripts/invoke-truth-verses.ts",
     "invoke-truth-reel": "node packages/scripts/invoke-truth-reel.ts",
+    "invoke-revolution-reel": "node packages/scripts/invoke-revolution-reel.ts",
     "normalize-sources": "node packages/scripts/normalize-sources.ts",
     "seed-authors": "node packages/scripts/seed-authors.ts",
     "seed-pinecone": "node packages/scripts/seed-pinecone.ts",

@@ -1,7 +1,8 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, TaskType } from "@google/generative-ai";
 import fetch from "node-fetch";
 import { Resource } from "sst";
 import type { Handler } from "aws-lambda";
+import { Pinecone } from "@pinecone-database/pinecone";
 
 interface ApifyPost {
   content: string;
@@ -9,7 +10,7 @@ interface ApifyPost {
 }
 
 export const handler: Handler = async () => {
-  console.log("--- GenerateTruthVsVerseData handler invoked ---");
+  console.log("--- GenerateTruthVsFoundingData handler invoked ---");
   
   try {
     const apifyApiKey = Resource.ApifyApiKey.value;
@@ -46,24 +47,58 @@ export const handler: Handler = async () => {
     }
     console.log(`Extracted Truth: "${truthText.substring(0, 50)}..."`);
 
-    console.log("Generating contrasting Bible verse with Gemini...");
-    const geminiApiKey = Resource.GeminiApiKey.value;
-    const genAI = new GoogleGenerativeAI(geminiApiKey);
+    // Fetch relevant quotes from Pinecone
+    console.log("Querying Pinecone for context...");
+    const pinecone = new Pinecone({ apiKey: Resource.PineconeApiKey.value });
+    const index = pinecone.index("founding-documents");
+
+    const genAI = new GoogleGenerativeAI(Resource.GeminiApiKey.value);
+    const embedModel = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
+
+    const resultEmbedding = await embedModel.embedContent(
+      {
+        content: { parts: [{ text: truthText }], role: "user" },
+        taskType: TaskType.RETRIEVAL_QUERY,
+        outputDimensionality: 768,
+      } as any,
+    );
+    const queryVector = resultEmbedding.embedding.values;
+
+    const pineconeResult = await index.query({
+      topK: 5,
+      vector: queryVector,
+      includeMetadata: true,
+    });
+
+    let contextText = "";
+    if (pineconeResult.matches.length > 0) {
+        pineconeResult.matches.forEach((match, ind) => {
+            const metadata = match.metadata as { raw_text: string; source: string };
+            contextText += `Quote ${ind + 1}:\n${metadata.raw_text}\nSource: ${metadata.source}\n\n`;
+        });
+    }
+
+    console.log("Generating contrasting Revolution quote with Gemini...");
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `You are a satirical expert. Here is a recent post from former US President Donald Trump on his "Truth Social" platform:
     
 "${truthText}"
 
-Find a Bible scripture that starkly REFUTES, CONTRADICTS, or exposes the hypocrisy of his statement. The verse must directly argue against the underlying spirit or message of his quote to provide a sharp, critical juxtaposition.
+Here are 5 quotes retrieved from American founding documents that are conceptually related to the topic of his post:
+${contextText}
+
+From the 5 quotes above, isolate the single sentence or passage that most starkly REFUTES, CONTRADICTS, or exposes the hypocrisy of his statement. The quote must directly argue against the underlying spirit or message of his post to provide a sharp, critical juxtaposition.
 
 Also, if the original Truth Social post is very long, extract the single most impactful, absurd, or relevant sentence/excerpt from it (if it's already short, just return the whole thing).
+
+For the reference, properly format it to look highly professional. Use Title Case for the document name and provide the full name of the author (e.g. "John Adams, Thoughts on Government").
 
 Return ONLY a valid JSON object in this exact structure with no markdown framing, tick marks or extra text:
 {
   "truth_excerpt": "<the impactful excerpt from his post>",
-  "scripture": "<the text of the bible verse>",
-  "reference": "<the book, chapter, and verse>"
+  "quote": "<the isolated passage>",
+  "reference": "<the cleanly formatted source document and author>"
 }
 `;
 
@@ -80,12 +115,12 @@ Return ONLY a valid JSON object in this exact structure with no markdown framing
     
     return {
         truthText: parsedJson.truth_excerpt,
-        scriptureText: parsedJson.scripture,
-        scriptureReference: parsedJson.reference,
+        foundingQuoteText: parsedJson.quote,
+        foundingReference: parsedJson.reference,
     };
 
   } catch (error) {
-    console.error("Error in GenerateTruthVsVerseData handler:", error);
+    console.error("Error in GenerateTruthVsFoundingData handler:", error);
     throw error;
   }
 };

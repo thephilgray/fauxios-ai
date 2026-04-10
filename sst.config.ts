@@ -228,11 +228,79 @@ export default $config({
       }))
     });
 
+    const generateTruthVsFoundingData = new sst.aws.Function("GenerateTruthVsFoundingData", {
+      handler: "src/functions/generateTruthVsFoundingData.handler",
+      link: [apifyApiKey, geminiApiKey, pineconeApiKey],
+      timeout: "180 seconds",
+    });
+
+    const generateMillerRevolutionImage = new sst.aws.Function("GenerateMillerRevolutionImage", {
+      handler: "src/functions/generateMillerRevolutionImage.handler",
+      link: [geminiApiKey, processedImagesBucket],
+      timeout: "60 seconds",
+    });
+
+    const renderRevolutionReel = new sst.aws.Function("RenderRevolutionReel", {
+      handler: "src/functions/renderRevolutionReel.handler",
+      timeout: "15 minutes",
+      memory: "2048 MB",
+      permissions: [
+        {
+          actions: ["lambda:InvokeFunction"],
+          resources: ["arn:aws:lambda:us-east-1:856562418824:function:remotion-render-4-0-365-mem2048mb-disk2048mb-120sec"],
+        },
+      ],
+    });
+
+    const postRevolutionReelToFacebook = new sst.aws.Function("PostRevolutionReelToFacebook", {
+      handler: "src/functions/postRevolutionReelToFacebook.handler",
+      link: [facebookUserId, facebookUserAccessToken, facebookPageId],
+      timeout: "60 seconds",
+    });
+
+    const revolutionReelStateMachine = new sst.aws.StepFunctions("RevolutionReelOrchestrator", {
+      definition: sst.aws.StepFunctions.lambdaInvoke({
+        name: "GenerateFoundingData",
+        function: generateTruthVsFoundingData,
+        output: { data: "{% $states.result.Payload %}" },
+      }).next(sst.aws.StepFunctions.lambdaInvoke({
+        name: "GenerateMillerImage",
+        function: generateMillerRevolutionImage,
+        payload: { truthText: "{% $states.input.data.truthText %}", foundingQuoteText: "{% $states.input.data.foundingQuoteText %}", foundingReference: "{% $states.input.data.foundingReference %}" },
+        output: { mergedData: "{% $states.result.Payload %}" },
+      })).next(sst.aws.StepFunctions.lambdaInvoke({
+        name: "RenderRevolutionVideo",
+        function: renderRevolutionReel,
+        payload: { truthText: "{% $states.input.mergedData.truthText %}", foundingQuoteText: "{% $states.input.mergedData.foundingQuoteText %}", foundingReference: "{% $states.input.mergedData.foundingReference %}", imageUrl: "{% $states.input.mergedData.imageUrl %}" },
+        output: { videoData: "{% $states.result.Payload %}" },
+      })).next(sst.aws.StepFunctions.lambdaInvoke({
+        name: "PostRevolutionToFacebook",
+        function: postRevolutionReelToFacebook,
+        payload: { videoUrl: "{% $states.input.videoData.videoUrl %}", caption: "{% $states.input.videoData.caption %}" },
+      }))
+    });
+
     new sst.aws.Cron("TruthVersesOrchestratorCron", {
       schedule: "rate(3 days)",
       job: {
         handler: "src/functions/truthVersesTrigger.handler",
         link: [truthVersesStateMachine],
+      },
+    });
+
+    new sst.aws.Cron("TruthReelOrchestratorCron", {
+      schedule: "cron(0 16 ? * 1,3,5 *)",
+      job: {
+        handler: "src/functions/truthReelTrigger.handler",
+        link: [truthReelStateMachine],
+      },
+    });
+
+    new sst.aws.Cron("RevolutionReelOrchestratorCron", {
+      schedule: "cron(0 16 ? * 2,4,6 *)",
+      job: {
+        handler: "src/functions/revolutionReelTrigger.handler",
+        link: [revolutionReelStateMachine],
       },
     });
     }
