@@ -65,6 +65,7 @@ export default $config({
     const geminiApiKey = new sst.Secret("GeminiApiKey");
     const newsdataApiKey = new sst.Secret("NewsdataApiKey");
     const pineconeApiKey = new sst.Secret("PineconeApiKey");
+    const apifyApiKey = new sst.Secret("ApifyApiKey");
 
     // New Step Function Workflow
     const generateArticleContent = new sst.aws.Function("GenerateArticleContent", {
@@ -89,6 +90,19 @@ export default $config({
     const postToSocials = new sst.aws.Function("PostToSocials", {
       handler: "src/functions/postToSocials.handler",
       link: [articlesTable, processedImagesBucket, twitterApiKey, twitterApiSecret, twitterAccessToken, twitterAccessTokenSecret, facebookUserId, facebookUserAccessToken, facebookPageId],
+      timeout: "30 seconds",
+    });
+
+    const generateTruthVsVerse = new sst.aws.Function("GenerateTruthVsVerse", {
+      handler: "src/functions/generateTruthVsVerse.handler",
+      link: [apifyApiKey, geminiApiKey, processedImagesBucket],
+      nodejs: { install: ["sharp", "@resvg/resvg-js", "satori"] },
+      timeout: "180 seconds",
+    });
+
+    const postTruthToFacebook = new sst.aws.Function("PostTruthToFacebook", {
+      handler: "src/functions/postTruthToFacebook.handler",
+      link: [facebookUserId, facebookUserAccessToken, facebookPageId],
       timeout: "30 seconds",
     });
 
@@ -145,6 +159,28 @@ export default $config({
         job: {
           handler: "src/functions/orchestratorTrigger.handler",
           link: [stateMachine],
+        },
+      });
+      
+      const truthVersesStateMachine = new sst.aws.StepFunctions("TruthVersesOrchestrator", {
+        definition: sst.aws.StepFunctions.lambdaInvoke({
+          name: "GenerateTruthVsVerse",
+          function: generateTruthVsVerse,
+          output: {
+            postContent: "{% $states.result.Payload %}",
+          },
+        }).next(sst.aws.StepFunctions.lambdaInvoke({
+          name: "PostTruthToFacebook",
+          function: postTruthToFacebook,
+          payload: { postToPublish: "{% $states.input.postContent %}" },
+        }))
+      });
+
+      new sst.aws.Cron("TruthVersesOrchestratorCron", {
+        schedule: "rate(3 days)",
+        job: {
+          handler: "src/functions/truthVersesTrigger.handler",
+          link: [truthVersesStateMachine],
         },
       });
     }

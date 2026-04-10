@@ -9,6 +9,10 @@ declare module "sst" {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
     }
+    "ApifyApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "Articles": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -53,6 +57,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "GenerateTruthVsVerse": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "GenerateVoiceover": {
       "name": string
       "type": "sst.aws.Function"
@@ -73,6 +81,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "PostTruthToFacebook": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "ProcessedImages": {
       "name": string
       "type": "sst.aws.Bucket"
@@ -84,6 +96,10 @@ declare module "sst" {
     "RunwayApiKey": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "TruthVersesOrchestrator": {
+      "arn": string
+      "type": "sst.aws.StepFunctions"
     }
     "TwitterAccessToken": {
       "type": "sst.sst.Secret"
