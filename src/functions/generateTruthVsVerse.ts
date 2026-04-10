@@ -66,7 +66,7 @@ export const handler: Handler = async () => {
     
 "${truthText}"
 
-Find a highly relevant or sharply contrasting Bible scripture that juxtaposes with his statement in a thought-provoking, ironic, or profound way.
+Find a Bible scripture that starkly REFUTES, CONTRADICTS, or exposes the hypocrisy of his statement. The verse must directly argue against the underlying spirit or message of his quote to provide a sharp, critical juxtaposition.
 Return ONLY a valid JSON object in this exact structure with no markdown framing, tick marks or extra text:
 {
   "scripture": "<the text of the bible verse>",

@@ -163,26 +163,78 @@ export default $config({
       });
       
       const truthVersesStateMachine = new sst.aws.StepFunctions("TruthVersesOrchestrator", {
-        definition: sst.aws.StepFunctions.lambdaInvoke({
-          name: "GenerateTruthVsVerse",
-          function: generateTruthVsVerse,
-          output: {
-            postContent: "{% $states.result.Payload %}",
-          },
-        }).next(sst.aws.StepFunctions.lambdaInvoke({
-          name: "PostTruthToFacebook",
-          function: postTruthToFacebook,
-          payload: { postToPublish: "{% $states.input.postContent %}" },
-        }))
-      });
-
-      new sst.aws.Cron("TruthVersesOrchestratorCron", {
-        schedule: "rate(3 days)",
-        job: {
-          handler: "src/functions/truthVersesTrigger.handler",
-          link: [truthVersesStateMachine],
+      definition: sst.aws.StepFunctions.lambdaInvoke({
+        name: "GenerateTruthVsVerse",
+        function: generateTruthVsVerse,
+        output: {
+          postContent: "{% $states.result.Payload %}",
         },
-      });
+      }).next(sst.aws.StepFunctions.lambdaInvoke({
+        name: "PostTruthToFacebook",
+        function: postTruthToFacebook,
+        payload: { postToPublish: "{% $states.input.postContent %}" },
+      }))
+    });
+
+    const generateTruthVsVerseData = new sst.aws.Function("GenerateTruthVsVerseData", {
+      handler: "src/functions/generateTruthVsVerseData.handler",
+      link: [apifyApiKey, geminiApiKey],
+      timeout: "180 seconds",
+    });
+
+    const generateBiblicalTruthImage = new sst.aws.Function("GenerateBiblicalTruthImage", {
+      handler: "src/functions/generateBiblicalTruthImage.handler",
+      link: [geminiApiKey, processedImagesBucket],
+      timeout: "60 seconds",
+    });
+
+    const renderTruthReel = new sst.aws.Function("RenderTruthReel", {
+      handler: "src/functions/renderTruthReel.handler",
+      timeout: "15 minutes",
+      memory: "2048 MB",
+      permissions: [
+        {
+          actions: ["lambda:InvokeFunction"],
+          resources: ["arn:aws:lambda:us-east-1:856562418824:function:remotion-render-4-0-365-mem2048mb-disk2048mb-120sec"],
+        },
+      ],
+    });
+
+    const postTruthReelToFacebook = new sst.aws.Function("PostTruthReelToFacebook", {
+      handler: "src/functions/postTruthReelToFacebook.handler",
+      link: [facebookUserId, facebookUserAccessToken, facebookPageId],
+      timeout: "60 seconds",
+    });
+
+    const truthReelStateMachine = new sst.aws.StepFunctions("TruthReelOrchestrator", {
+      definition: sst.aws.StepFunctions.lambdaInvoke({
+        name: "GenerateData",
+        function: generateTruthVsVerseData,
+        output: { data: "{% $states.result.Payload %}" },
+      }).next(sst.aws.StepFunctions.lambdaInvoke({
+        name: "GenerateImage",
+        function: generateBiblicalTruthImage,
+        payload: { truthText: "{% $states.input.data.truthText %}", scriptureText: "{% $states.input.data.scriptureText %}", scriptureReference: "{% $states.input.data.scriptureReference %}" },
+        output: { mergedData: "{% $states.result.Payload %}" },
+      })).next(sst.aws.StepFunctions.lambdaInvoke({
+        name: "RenderVideo",
+        function: renderTruthReel,
+        payload: { truthText: "{% $states.input.mergedData.truthText %}", scriptureText: "{% $states.input.mergedData.scriptureText %}", scriptureReference: "{% $states.input.mergedData.scriptureReference %}", imageUrl: "{% $states.input.mergedData.imageUrl %}" },
+        output: { videoData: "{% $states.result.Payload %}" },
+      })).next(sst.aws.StepFunctions.lambdaInvoke({
+        name: "PostToFacebook",
+        function: postTruthReelToFacebook,
+        payload: { videoUrl: "{% $states.input.videoData.videoUrl %}", caption: "{% $states.input.videoData.caption %}" },
+      }))
+    });
+
+    new sst.aws.Cron("TruthVersesOrchestratorCron", {
+      schedule: "rate(3 days)",
+      job: {
+        handler: "src/functions/truthVersesTrigger.handler",
+        link: [truthVersesStateMachine],
+      },
+    });
     }
     const api = new sst.aws.ApiGatewayV2("Api"); // Changed to ApiGatewayV2
     api.route("GET /articles", {

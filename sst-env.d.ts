@@ -57,7 +57,15 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "GenerateBiblicalTruthImage": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "GenerateTruthVsVerse": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "GenerateTruthVsVerseData": {
       "name": string
       "type": "sst.aws.Function"
     }
@@ -81,6 +89,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "PostTruthReelToFacebook": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "PostTruthToFacebook": {
       "name": string
       "type": "sst.aws.Function"
@@ -89,6 +101,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "RenderTruthReel": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "RenderVideo": {
       "name": string
       "type": "sst.aws.Function"
@@ -96,6 +112,10 @@ declare module "sst" {
     "RunwayApiKey": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "TruthReelOrchestrator": {
+      "arn": string
+      "type": "sst.aws.StepFunctions"
     }
     "TruthVersesOrchestrator": {
       "arn": string
