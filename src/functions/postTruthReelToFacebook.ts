@@ -25,7 +25,7 @@ export const handler: Handler<PostTruthReelEvent> = async (event) => {
           return undefined;
         }
       } catch (error) {
-        console.error("Error fetching Facebook Page Access Token:", error);
+        console.error("Error fetching Facebook Page Access Token from Graph API:", error);
         return undefined;
       }
     }
@@ -33,38 +33,40 @@ export const handler: Handler<PostTruthReelEvent> = async (event) => {
     const facebookUserId = Resource.FacebookUserId.value;
     const facebookUserAccessToken = Resource.FacebookUserAccessToken.value;
     const facebookPageId = Resource.FacebookPageId.value;
+    const fallbackPageAccessToken = Resource.FacebookPageAccessToken.value;
 
+    let facebookPageAccessToken = fallbackPageAccessToken;
+
+    // Favor dynamic token fetching to prevent expiration
     if (facebookUserId && facebookUserAccessToken && facebookPageId) {
-      const facebookPageAccessToken = await getFacebookPageAccessToken(facebookUserId, facebookUserAccessToken, facebookPageId);
-
-      if (facebookPageAccessToken) {
-        try {
-          // Uploading to /videos endpoint. Facebook automatically categorizes 9:16 short form vertical videos as Reels.
-          const facebookPostData = {
-            description: caption,
-            file_url: videoUrl,
-            access_token: facebookPageAccessToken,
-          };
-
-          const facebookResponse = await axios.post(
-            `https://graph.facebook.com/v19.0/${facebookPageId}/videos`,
-            facebookPostData
-          );
-          console.log("Facebook video reel post successful:", facebookResponse.data);
-        } catch (facebookError: any) {
-          console.error("Error posting video to Facebook:", facebookError.message || facebookError.response?.data || facebookError);
-        }
+      const dynamicToken = await getFacebookPageAccessToken(facebookUserId, facebookUserAccessToken, facebookPageId);
+      if (dynamicToken) {
+        facebookPageAccessToken = dynamicToken;
       } else {
-        console.log("Failed to obtain Facebook Page Access Token. Skipping.");
+        console.log("Dynamically fetching token failed or returned empty. Using fallback secret token.");
       }
-    } else {
-        console.log("Missing Facebook credentials. Skipping.");
     }
+
+    if (!facebookPageAccessToken) {
+      throw new Error("No Facebook Page Access Token available (dynamic or fallback). Aborting.");
+    }
+
+    const facebookPostData = {
+      description: caption,
+      file_url: videoUrl,
+      access_token: facebookPageAccessToken,
+    };
+
+    const facebookResponse = await axios.post(
+      `https://graph.facebook.com/v19.0/${facebookPageId}/videos`,
+      facebookPostData
+    );
+    console.log("Facebook video reel post successful:", facebookResponse.data);
 
     return { status: "SUCCESS" };
 
-  } catch (error) {
-    console.error("Error in PostTruthReelToFacebook handler:", error);
+  } catch (error: any) {
+    console.error("Error in PostTruthReelToFacebook handler:", error.message || error.response?.data || error);
     throw error;
   }
 };

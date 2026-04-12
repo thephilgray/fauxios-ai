@@ -18,61 +18,60 @@ export const handler: Handler<PostTruthToFacebookEvent> = async (event) => {
   const { postToPublish } = event;
 
   try {
-    // Helper function to get Facebook Page Access Token
     async function getFacebookPageAccessToken(userId: string, userAccessToken: string, pageId: string): Promise<string | undefined> {
       try {
         const response = await axios.get(`https://graph.facebook.com/${userId}/accounts?access_token=${userAccessToken}`);
-        const pages = response.data.data;
-        const targetPage = pages.find((page: any) => page.id === pageId);
+        const targetPage = response.data.data.find((page: any) => page.id === pageId);
         if (targetPage) {
-          console.log("Successfully fetched Facebook Page Access Token.");
           return targetPage.access_token;
         } else {
           console.error(`Facebook Page with ID ${pageId} not found among managed pages.`);
           return undefined;
         }
       } catch (error) {
-        console.error("Error fetching Facebook Page Access Token:", error);
+        console.error("Error fetching Facebook Page Access Token from Graph API:", error);
         return undefined;
       }
     }
 
-    // 1. Post to Facebook
     const facebookUserId = Resource.FacebookUserId.value;
     const facebookUserAccessToken = Resource.FacebookUserAccessToken.value;
     const facebookPageId = Resource.FacebookPageId.value;
+    const fallbackPageAccessToken = Resource.FacebookPageAccessToken.value;
 
+    let facebookPageAccessToken = fallbackPageAccessToken;
+
+    // Favor dynamic token fetching to prevent expiration
     if (facebookUserId && facebookUserAccessToken && facebookPageId) {
-      const facebookPageAccessToken = await getFacebookPageAccessToken(facebookUserId, facebookUserAccessToken, facebookPageId);
-
-      if (facebookPageAccessToken) {
-        try {
-          const facebookPostData = {
-            message: postToPublish.caption,
-            url: postToPublish.imageUrl, // Use 'url' for image posts
-            access_token: facebookPageAccessToken,
-          };
-
-          const facebookResponse = await axios.post(
-            `https://graph.facebook.com/v19.0/${facebookPageId}/photos`,
-            facebookPostData
-          );
-          console.log("Facebook post successful:", facebookResponse.data);
-          console.log(`Truth posted to Facebook.`);
-        } catch (facebookError: any) {
-          console.error("Error posting to Facebook:", facebookError.message || facebookError.response?.data || facebookError);
-        }
+      const dynamicToken = await getFacebookPageAccessToken(facebookUserId, facebookUserAccessToken, facebookPageId);
+      if (dynamicToken) {
+        facebookPageAccessToken = dynamicToken;
       } else {
-        console.log("Failed to obtain Facebook Page Access Token. Skipping Facebook post.");
+        console.log("Dynamically fetching token failed or returned empty. Using fallback secret token.");
       }
-    } else {
-        console.log("Missing Facebook credentials. Skipping Facebook post.");
     }
+
+    if (!facebookPageAccessToken) {
+      throw new Error("No Facebook Page Access Token available (dynamic or fallback). Aborting.");
+    }
+
+    const facebookPostData = {
+      message: postToPublish.caption,
+      url: postToPublish.imageUrl,
+      access_token: facebookPageAccessToken,
+    };
+
+    const facebookResponse = await axios.post(
+      `https://graph.facebook.com/v19.0/${facebookPageId}/photos`,
+      facebookPostData
+    );
+    console.log("Facebook post successful:", facebookResponse.data);
+    console.log(`Truth posted to Facebook.`);
 
     return { status: "SUCCESS" };
 
-  } catch (error) {
-    console.error("Error in PostTruthToFacebook handler:", error);
+  } catch (error: any) {
+    console.error("Error in PostTruthToFacebook handler:", error.message || error.response?.data || error);
     throw error;
   }
 };

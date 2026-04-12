@@ -25,6 +25,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "FacebookPageAccessToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "FacebookPageId": {
       "type": "sst.sst.Secret"
       "value": string

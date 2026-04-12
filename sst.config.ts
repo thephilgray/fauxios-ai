@@ -62,6 +62,7 @@ export default $config({
     const facebookUserId = new sst.Secret("FacebookUserId");
     const facebookUserAccessToken = new sst.Secret("FacebookUserAccessToken");
     const facebookPageId = new sst.Secret("FacebookPageId");
+    const facebookPageAccessToken = new sst.Secret("FacebookPageAccessToken");
     const geminiApiKey = new sst.Secret("GeminiApiKey");
     const newsdataApiKey = new sst.Secret("NewsdataApiKey");
     const pineconeApiKey = new sst.Secret("PineconeApiKey");
@@ -102,7 +103,7 @@ export default $config({
 
     const postTruthToFacebook = new sst.aws.Function("PostTruthToFacebook", {
       handler: "src/functions/postTruthToFacebook.handler",
-      link: [facebookUserId, facebookUserAccessToken, facebookPageId],
+      link: [facebookUserId, facebookUserAccessToken, facebookPageId, facebookPageAccessToken],
       timeout: "30 seconds",
     });
 
@@ -202,7 +203,7 @@ export default $config({
 
     const postTruthReelToFacebook = new sst.aws.Function("PostTruthReelToFacebook", {
       handler: "src/functions/postTruthReelToFacebook.handler",
-      link: [facebookUserId, facebookUserAccessToken, facebookPageId],
+      link: [facebookUserId, facebookUserAccessToken, facebookPageId, facebookPageAccessToken],
       timeout: "60 seconds",
     });
 
@@ -254,7 +255,7 @@ export default $config({
 
     const postRevolutionReelToFacebook = new sst.aws.Function("PostRevolutionReelToFacebook", {
       handler: "src/functions/postRevolutionReelToFacebook.handler",
-      link: [facebookUserId, facebookUserAccessToken, facebookPageId],
+      link: [facebookUserId, facebookUserAccessToken, facebookPageId, facebookPageAccessToken],
       timeout: "60 seconds",
     });
 
